@@ -32,6 +32,6 @@
 	posts queryByUserID(userID);
 #### 3.3 时间
 	posts queryByTime(startNum,endNum);
-## 4.转发
-    	int sharePost(postID,userID);
+### 4.转发 
+	int sharePost(postID,userID);
 
