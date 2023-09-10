@@ -1,4 +1,4 @@
-package com.jlusw.html.controller;
+ package com.jlusw.html.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -42,7 +42,7 @@ public class UserController {
             return R.error("登录失败");
         }
 
-        //登录成功，将员工id存入Session并返回登录成功结果
+        //登录成功，将用户id存入Session并返回登录成功结果
         request.getSession().setAttribute("user", tuser.getId());
         System.out.println(user);
         return R.success(null);
