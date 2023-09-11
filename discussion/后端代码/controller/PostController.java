@@ -135,7 +135,7 @@ public class PostController {
     public IPage<Post> queryPageOrderByTime(int startNum, int pageSize) {
 
         //设定起始位置以及每页大小
-        Page<Post> page = new Page<Post>(startNum, pageSize);
+        Page<Post> page = new Page<>(startNum, pageSize);
 
         //查询结果时间降序排序
         LambdaQueryWrapper<Post> queryWrapper = new LambdaQueryWrapper<>();
