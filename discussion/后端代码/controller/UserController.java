@@ -1,17 +1,16 @@
- package com.jlusw.html.controller;
+package com.jlusw.html.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.jlusw.html.common.R;
 import com.jlusw.html.entity.User;
-import com.jlusw.html.mapper.UserMapper;
 import com.jlusw.html.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
-
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDateTime;
 import java.util.List;
+
 
 @RestController
 @RequestMapping("/user")
@@ -19,7 +18,12 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-
+    /**
+     * 1. 登陆
+     * @param request request
+     * @param user 用户信息
+     * @return 登录结果
+     */
     @PostMapping("/login")
     public R<User> login(HttpServletRequest request, @RequestBody User user) {
 
@@ -50,14 +54,14 @@ public class UserController {
 
 
     /**
-     * 注册
-     * @param request
-     * @param user
-     * @return
+     * 2. 注册
+     * @param request request
+     * @param user 用户信息
+     * @return 注册结果
      */
 
     @PostMapping("/register")
-    public R<String> register(HttpServletRequest request, @RequestBody User user) {
+    public R<String> register(@RequestBody User user) {
 
         //查询用户是否已存在
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
@@ -66,16 +70,18 @@ public class UserController {
         if (tuser != null) {
             return R.error("用户已存在");
         }
-
         //增加用户
+
+        user.setRegisterTime(LocalDateTime.now());
+        System.out.println(LocalDateTime.now());
         userService.save(user);
         return R.success("注册成功");
     }
 
     /**
-     * 退出
-     * @param request
-     * @return
+     * 3.退出登录
+     * @param request request
+     * @return 结果
      */
 
     @GetMapping("/logout")
@@ -86,32 +92,31 @@ public class UserController {
     }
 
     /**
-     * 检查登陆状态
-     * @param request
-     * @return
+     * 4. 检查登陆状态
+     * @param request request
+     * @return 用户信息
      */
     User checkState(HttpServletRequest request){
         //获取session用户id
         if (request.getSession().getAttribute("user") == null)
             return null;
-        int id = (int) request.getSession().getAttribute("user");
+        long id = (long) request.getSession().getAttribute("user");
 
         //查询用户是否存在
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(User::getId, id);
-        User user = userService.getOne(queryWrapper);
-        return user;
+        return userService.getOne(queryWrapper);
     }
 
 
     /**
-     * 注销账号
-     * @param request
-     * @return
+     * 5. 注销账号 注销即将用户移入cancelled_user表
+     * @param request request
+     * @return 注销结果
      */
 
-    @DeleteMapping("/cancell")
-    public R<String> cancell(HttpServletRequest request) {
+    @DeleteMapping("/cancel")
+    public R<String> cancel(HttpServletRequest request) {
 
         //检查登陆状态
         User user=checkState(request);
@@ -119,15 +124,16 @@ public class UserController {
             return R.error("登陆状态异常");
 
         //删除用户
-        userService.removeById(user.getId());
-        return R.success("注销成功");
+        if(userService.cancel(user.getId()))
+            return R.success("注销成功");
+        return R.success("注销失败");
     }
 
     /**
-     * 修改用户名
-     * @param request
-     * @param name
-     * @return
+     * 6. 修改用户名
+     * @param request request
+     * @param name 新用户名
+     * @return 修改结果
      */
     @PatchMapping("/setName")
     public R<String> setName(HttpServletRequest request, String name) {
@@ -149,10 +155,10 @@ public class UserController {
     }
 
     /**
-     * 修改密码
-     * @param request
-     * @param password
-     * @return
+     * 7. 修改密码
+     * @param request request
+     * @param password 新密码
+     * @return 修改结果
      */
     @PatchMapping("/setPassword")
     public R<String>setPassword(HttpServletRequest request, String password){
@@ -174,18 +180,18 @@ public class UserController {
     }
 
     /**
-     * queryByID
-     * @param id
-     * @return
+     * 8.1 依据id查询用户
+     * @param id 用户id
+     * @return 用户信息
      */
     @GetMapping("/queryByID")
     public R<User> queryByID(int id){
         return R.success(userService.getById(id));
     }
     /**
-     * 名称精准查询
-     * @param name
-     * @return
+     * 8.2 名称精准查询用户
+     * @param name 用户名
+     * @return 用户信息
      */
     @GetMapping("/accurateQueryByName")
     public R<User> accurateQueryByName(String name){
@@ -195,9 +201,9 @@ public class UserController {
         return R.success(user);
     }
     /**
-     * 名称模糊查询
-     * @param name
-     * @return
+     * 8.3 名称模糊查询用户
+     * @param name 用户名
+     * @return 用户信息
      */
     @GetMapping("/fuzzyQueryByName")
     public R<List<User>> fuzzyQueryByName(String name){
