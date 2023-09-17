@@ -16,7 +16,7 @@ export default createStore({
     {
       console.log(username)
       console.log(password)
-      axios.post("/login", {username: username, password: password}).then(res => {
+      axios.post("/api/user/login", {name: username, password: password}).then(res => {
         state.userInfo.id = res;
         state.userInfo.username = username;
       }).catch(res=>{
@@ -26,8 +26,9 @@ export default createStore({
     },
     getPostList(state)
     {
-      axios.post('/queryPageOrderByTime', {startNum: 0, pageSize: 99999}).then(res=>{
-        state.postList = res.data;
+      axios.get('api/post/queryPageOrderByTime', {params:{startNum: 0, pageSize: 99999}}).then(res=>{
+        state.postList = res.data.records;
+        console.log(res);
       }).catch(res => {
         console.log(res);
         console.log(state.userInfo.username);
