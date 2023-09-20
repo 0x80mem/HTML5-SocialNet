@@ -26,7 +26,7 @@
 </style>
   
 <script>
-import store from '@/store';
+import store from '../store';
 import { createApp, ref } from 'vue';
 import { ActionBar, ActionBarIcon, ActionBarButton, Popup } from 'vant';
 import EditorView from './EditorView.vue';
