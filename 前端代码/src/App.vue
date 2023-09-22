@@ -1,6 +1,5 @@
 <template>
  <nav>
-  <router-link to="/login" href="#">登录</router-link> |
   <router-link to="/" href="#">推荐</router-link>
 </nav>
 <router-view />
