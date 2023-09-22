@@ -3,8 +3,10 @@ import { createStore } from 'vuex'
 
 export default createStore({
   state: {
+    isDebug: true,
     userInfo: {
       id: 0,
+      isLogin: false,
       username: ''
     },
     postList: []
@@ -19,9 +21,14 @@ export default createStore({
       axios.post("/api/user/login", {name: username, password: password}).then(res => {
         state.userInfo.id = res;
         state.userInfo.username = username;
+        state.userInfo.isLogin = true;
       }).catch(res=>{
         console.log(res);
-        state.userInfo.username = username;
+        if (state.isDebug)
+        {
+          state.userInfo.username = username;
+          state.userInfo.isLogin = true;
+        }
       })
     },
     getPostList(state)
@@ -31,9 +38,12 @@ export default createStore({
         console.log(res);
       }).catch(res => {
         console.log(res);
-        console.log(state.userInfo.username);
-        for (var i = 0; i < 10; i++)
-            state.postList.push(state.userInfo.username + " " + i);
+        if (state.isDebug)
+        {
+          console.log(state.userInfo.username);
+          for (var i = 0; i < 10; i++)
+              state.postList.push(state.userInfo.username + " " + i);
+        }
       })
     },
     post(state, content)
