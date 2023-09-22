@@ -1,12 +1,11 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import LoginView from '../views/LoginView.vue'
 import RecommendView from '../views/RecommendView.vue'
 
 const routes = [
   {
     path: '/login',
     name: 'login',
-    component: LoginView
+    component: () => import(/* webpackChunkName: "about" */ '../views/LoginView.vue')
   },
   {
     path: '/',

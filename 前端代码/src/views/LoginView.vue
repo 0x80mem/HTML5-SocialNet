@@ -32,6 +32,7 @@
   // @ is an alias to /src
 import { createApp, ref } from 'vue';
 import { Form, Field, CellGroup } from 'vant';
+import { useRouter } from "vue-router"
 import store from '../store';
 
 const app = createApp();
@@ -45,7 +46,9 @@ export default {
     const username = ref('');
     const password = ref('');
     const onSubmit = (values) => {
+      const router = useRouter()
       store.commit("Login", [values['username'], values['password']])
+      router.back()
     };
 
     return {

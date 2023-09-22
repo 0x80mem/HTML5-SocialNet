@@ -12,7 +12,7 @@
 <script>
 import { createApp, ref } from 'vue';
 import { Form, Field, CellGroup } from 'vant';
-import store from '../store';
+import store from '../store'
 
 const app = createApp();
 app.use(Form);
