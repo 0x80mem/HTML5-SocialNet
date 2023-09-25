@@ -3,20 +3,37 @@ package com.jlusw.html.controller;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.jlusw.html.common.R;
+import com.jlusw.html.common.UserUtil;
+import com.jlusw.html.entity.Collect;
+import com.jlusw.html.entity.Follow;
 import com.jlusw.html.entity.User;
+import com.jlusw.html.entity.UserDTO;
+import com.jlusw.html.service.IGroupService;
 import com.jlusw.html.service.UserService;
+import ma.glasnost.orika.MapperFactory;
+import org.apache.ibatis.annotations.Delete;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 
 @RestController
 @RequestMapping("/user")
+@CrossOrigin
+@Transactional
 public class UserController {
     @Autowired
     private UserService userService;
+    @Autowired
+    IGroupService<Collect> collectIGroupService;
+    @Autowired
+    IGroupService<Follow> followIGroupService;
 
     /**
      * 1. 登陆
@@ -25,7 +42,7 @@ public class UserController {
      * @return 登录结果
      */
     @PostMapping("/login")
-    public R<User> login(HttpServletRequest request, @RequestBody User user) {
+    public R<Long> login(HttpServletRequest request, @RequestBody User user) {
 
 
         String password = user.getPassword();
@@ -48,8 +65,7 @@ public class UserController {
 
         //登录成功，将用户id存入Session并返回登录成功结果
         request.getSession().setAttribute("user", tuser.getId());
-        System.out.println(user);
-        return R.success(null);
+        return R.success(tuser.getId());
     }
 
 
@@ -71,11 +87,17 @@ public class UserController {
             return R.error("用户已存在");
         }
         //增加用户
-
         user.setRegisterTime(LocalDateTime.now());
         System.out.println(LocalDateTime.now());
-        userService.save(user);
-        return R.success("注册成功");
+        if(userService.save(user)){
+            //初始化
+            Long id =userService.getOne(new LambdaQueryWrapper<User>().eq(User::getName,user.getName())).getId();
+            collectIGroupService.createGroup(id,"默认收藏夹");
+            followIGroupService.createGroup(id,"默认分组");
+            return R.success();
+        }
+
+        return R.error();
     }
 
     /**
@@ -86,9 +108,10 @@ public class UserController {
 
     @GetMapping("/logout")
     public R<String> logout(HttpServletRequest request) {
-
+        if(request.getSession().getAttribute("user")==null)
+            return R.error("未登录");
         request.getSession().removeAttribute("user");
-        return R.success("退出成功");
+        return R.success();
     }
 
     /**
@@ -96,7 +119,7 @@ public class UserController {
      * @param request request
      * @return 用户信息
      */
-    User checkState(HttpServletRequest request){
+    private User checkState(HttpServletRequest request){
         //获取session用户id
         if (request.getSession().getAttribute("user") == null)
             return null;
@@ -185,8 +208,12 @@ public class UserController {
      * @return 用户信息
      */
     @GetMapping("/queryByID")
-    public R<User> queryByID(int id){
-        return R.success(userService.getById(id));
+    public R<UserDTO> queryByID(Integer id){
+        User user=userService.getById(id);
+        if(user==null)
+            return R.error("用户不存在");
+        user.setPassword("");
+        return R.success(UserUtil.toUserDTO(user));
     }
     /**
      * 8.2 名称精准查询用户
@@ -194,11 +221,11 @@ public class UserController {
      * @return 用户信息
      */
     @GetMapping("/accurateQueryByName")
-    public R<User> accurateQueryByName(String name){
-        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(User::getName, name);
-        User user = userService.getOne(queryWrapper);
-        return R.success(user);
+    public R<UserDTO> accurateQueryByName(String name){
+        User user = userService.getOne(new LambdaQueryWrapper<User>().eq(User::getName, name));
+        if(user==null)
+            return R.error();
+        return R.success(UserUtil.toUserDTO(user));
     }
     /**
      * 8.3 名称模糊查询用户
@@ -206,10 +233,13 @@ public class UserController {
      * @return 用户信息
      */
     @GetMapping("/fuzzyQueryByName")
-    public R<List<User>> fuzzyQueryByName(String name){
+    public R<List<UserDTO>> fuzzyQueryByName(String name){
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.like(User::getName, name);
         List<User> users = userService.list(queryWrapper);
-        return R.success(users);
+        return R.success(UserUtil.toUserDTOs(users));
     }
+
+
+
 }
