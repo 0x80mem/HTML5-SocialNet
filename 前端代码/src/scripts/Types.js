@@ -1,7 +1,7 @@
 import ShowLevel from "./ShowLevel";
-import max from "core-js/fn/math"
+import { Math } from "core-js";
 
-//对于最简结构的显示规定
+//不同类型的属性
 class Types
 {
     /*
@@ -14,10 +14,10 @@ class Types
     {
         this.par_policy = [];
         this.chi_policy = [];
-        for (let i = 0; i < length(ShowLevel); i++)
-        {
-            this.par_policy.push(max(0, i - 1));
-            this.chi_policy.push(max(0, i - 1));
+        for (let level in ShowLevel)
+        { 
+            this.par_policy.push(Math.max(ShowLevel['hide'], ShowLevel[level] - 1));
+            this.chi_policy.push(Math.max(ShowLevel['hide'], ShowLevel[level] - 1));
         }
         par_unique.forEach(i => { this.par_policy[i[0]] = i[1] });
         chi_unique.forEach(i => { this.chi_policy[i[0]] = i[1] });

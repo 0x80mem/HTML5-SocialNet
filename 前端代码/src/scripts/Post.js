@@ -17,7 +17,7 @@ class Post
     editGroup: 编辑组, {post id: rights} 暂不考虑
     baseRight: 基础编辑权限
     */
-    constructor (id, type, author, content, parPost, chiPost, 
+    constructor (id, type, author, content, parPost = [], chiPost = [], 
         blackList = [], whiteList = [], grantGroup = [], editGroup = [], baseRight = 'banned')
     {
         this.id = id;
