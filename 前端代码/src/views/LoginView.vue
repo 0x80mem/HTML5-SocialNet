@@ -45,9 +45,9 @@ export default {
   setup() {
     const username = ref('');
     const password = ref('');
+    const router = useRouter()
     const onSubmit = (values) => {
-      const router = useRouter()
-      store.commit("Login", [values['username'], values['password']])
+      store.commit("login", [values['username'], values['password']])
       router.back()
     };
 

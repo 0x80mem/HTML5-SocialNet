@@ -1,8 +1,9 @@
 <template>
 <van-sidebar v-model="active">
     <div v-if="isLogin">
-        <van-sidebar-item :title="username" />
-        <van-sidebar-item title="标签名称1" />
+        <van-sidebar-item :title="username" @click="toUserInfo()" />
+        <van-sidebar-item title="关注" />
+        <van-sidebar-item title="退出登录" @click="logout()"/>
     </div>
     <div v-else>
         <van-sidebar-item title="未登录" />
@@ -29,14 +30,21 @@ export default {
     const isLogin = store.state.userInfo.isLogin
     const username = store.state.userInfo.username
     const login = ()=> {
-        console.log('login')
         router.push("/login")
+    }
+    const logout = ()=> {
+      store.commit("logout")
+    }
+    const toUserInfo = ()=> {
+      router.push({path: "", query: {id: store.state.userInfo.id}})
     }
     return { 
         active,
         isLogin,
         username,
-        login
+        login,
+        logout,
+        toUserInfo,
     };
   },
 };
