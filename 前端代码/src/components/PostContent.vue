@@ -1,5 +1,6 @@
 <template>
-    这是内容
+    {{ content.title }}
+    {{ content.content }}
 </template>
 
 <script>

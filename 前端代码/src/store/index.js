@@ -1,6 +1,8 @@
 import axios from 'axios'
 import { createStore } from 'vuex'
-var api=axios.create({
+import { dlogin } from './debug_interface'
+
+var api = axios.create({
   baseURL:'/api',
   timeout:1000
 })
@@ -12,17 +14,26 @@ export default createStore({
       username: ''
     },
     //存储帖子信息 数组形式
-    postList: []
+    postList: [],
+    isDebug: true,
   },
   getters: {
   },
   mutations: {
-    Login(state, [username, password])
+    login(state, [username, password])
     {
+      if (state.isDebug)
+      {
+        state.userInfo.id = dlogin(username, password);
+        state.userInfo.isLogin = true;
+        state.userInfo.username = username;
+        return;
+      }
       console.log(username)
       console.log(password)
       api.post("/user/login", {name: username, password: password}).then(res => {
         state.userInfo.id = res;
+        state.userInfo.isLogin = true;
         state.userInfo.username = username;
         console.log(res);
       }).catch(res=>{
@@ -95,8 +106,9 @@ export default createStore({
       }).catch(res => {
         console.log(res);
         console.log(state.userInfo.username);
+        //state.postList = [];
         for (var i = 0; i < 10; i++)
-        state.postList.push(state.userInfo.username + " " + i);
+          state.postList.push(state.userInfo.username + " " + i);
       })
     },
     post(state, content)

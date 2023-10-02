@@ -1,8 +1,5 @@
 <template>
- <nav>
-  <router-link to="/" href="#">推荐</router-link>
-</nav>
-<router-view />
+<router-view :key="route.fullPath"/>
 </template>
 
 <style lang="less">
