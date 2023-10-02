@@ -5,12 +5,16 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.jlusw.html.common.R;
+import com.jlusw.html.entity.Collect;
 import com.jlusw.html.entity.Post;
 import com.jlusw.html.entity.User;
 import com.jlusw.html.mapper.PostMapper;
+import com.jlusw.html.service.ICollectService;
+import com.jlusw.html.service.IGroupService;
 import com.jlusw.html.service.PostService;
 import com.jlusw.html.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -20,6 +24,8 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/post")
+@CrossOrigin
+@Transactional
 public class PostController {
 
     @Autowired
@@ -28,8 +34,20 @@ public class PostController {
     private PostMapper postMapper;
     @Autowired
     private UserService userService;
+    @Autowired
+    private IGroupService<Collect> collectIGroupService;
+    private User user;
+    private Post post;
 
-
+    public void getUser(HttpServletRequest request){
+        //检查登陆状态
+        if( request.getSession().getAttribute("user")==null){
+            user=null;
+            return ;
+        }
+        long userId = (long) request.getSession().getAttribute("user");
+        user= userService.getById(userId);
+    }
     /**
      * 1 发帖
      * @param request request
@@ -42,19 +60,16 @@ public class PostController {
         //检查post是否为空
         if (post == null)
             return R.error("post is null");
-
         //检查登陆状态
-        long id = (long) request.getSession().getAttribute("user");
-        User user = userService.getById(id);
+        getUser(request);
         if (user == null)
             return R.error("登陆异常");
-
         //post
-        post.setUserId(id);
+        post.setUserId(user.getId());
         post.setTime(LocalDateTime.now());
         if (postService.save(post))
-            return R.success(null);
-        return R.error(null);
+            return R.success();
+        return R.error();
     }
 
     /**
@@ -64,25 +79,22 @@ public class PostController {
      * @return 返回删除结果
      */
     @DeleteMapping("/delete")
-    public R<String> post(HttpServletRequest request, long id) {
+    public R<String> post(HttpServletRequest request, Long id) {
 
-        //查询帖子是否存在以及是否state已经置1
-        Post post = postService.getById(id);
-        if (post == null|| post.getState()== 1)
-            return R.error(null);
+        //查询帖子是否存在
+        post = postService.getById(id);
+        if (post == null)
+            return R.error();
 
         //权限确认 （当前为发帖者拥有删帖权限）
-        long userId = (long) request.getSession().getAttribute("user");
-        User user = userService.getById(userId);
-        if (user == null || userId != post.getUserId())
-            return R.error(null);
+        getUser(request);
+        if (user == null || !user.getId().equals(post.getUserId()))
+            return R.error("无删贴权限");
 
-        //状态state置1
-        UpdateWrapper<Post> updateWrapper = new UpdateWrapper<>();
-        updateWrapper.eq("id", id).set("state", 1);
-        postService.update(updateWrapper);
+        //逻辑删除
+        postService.removeById(id);
 
-        return R.success(null);
+        return R.success();
     }
 
     /**
@@ -100,7 +112,7 @@ public class PostController {
 
         //查询结果为空
         if (posts.isEmpty())
-            return R.error(null);
+            return R.error();
 
         return R.success(posts);
     }
@@ -120,7 +132,7 @@ public class PostController {
 
         //查询为空
         if (posts.isEmpty())
-            return R.error(null);
+            return R.error();
 
         return R.success(posts);
     }
@@ -132,7 +144,7 @@ public class PostController {
      * @return 返回分页记录及信息
      */
     @GetMapping("/queryPageOrderByTime")
-    public IPage<Post> queryPageOrderByTime(int startNum, int pageSize) {
+    public IPage<Post> queryPageOrderByTime(Integer startNum, Integer pageSize) {
 
         //设定起始位置以及每页大小
         Page<Post> page = new Page<>(startNum, pageSize);
@@ -152,23 +164,65 @@ public class PostController {
      */
     @PostMapping("/share")
     public R<String> sharePost(HttpServletRequest request,long postId){
+
         //检查登陆状态
-        long userId = (long) request.getSession().getAttribute("user");
-        User user = userService.getById(userId);
+        getUser(request);
         if (user == null)
             return R.error("登陆异常");
 
         //查询帖子是否存在
-        Post post = postService.getById(postId);
+        post = postService.getById(postId);
         if (post == null)
             return R.error("帖子不存在");
 
-        //查询帖子是否state已经置1
-        if ( post.getState()== 1)
-            return R.error("帖子已被删除");
 
-        if(postService.share(userId,postId))
-            return R.success("");
-        return R.error("");
+        if(postService.share(user.getId(),postId))
+            return R.success();
+        return R.error();
     }
+
+    @PostMapping("/like")
+    public R<String> likePost(HttpServletRequest request,long postId){
+        //检查登陆状态
+        getUser(request);
+        if (user == null)
+            return R.error("登陆异常");
+        //查询帖子是否存在
+        post = postService.getById(postId);
+        if (post == null)
+            return R.error("帖子不存在");
+        //更新like
+        if(postService.like(user.getId(),postId)){
+            //成功默认收藏
+            if(collectIGroupService.insert(user.getId(),postId,"默认收藏夹"))
+                postService.collect(postId);
+            else {
+                //否则尝试创建默认收藏夹 再次收藏
+                collectIGroupService.createGroup(user.getId(), "默认收藏夹");
+                if(collectIGroupService.insert(user.getId(),postId,"默认收藏夹"))
+                    postService.collect(postId);
+            }
+            return R.success();
+        }
+        return R.error();
+    }
+    @DeleteMapping("/cancelLike")
+    public R<String> cancelLikePost(HttpServletRequest request,long postId){
+        //检查登陆状态
+        getUser(request);
+        if (user == null)
+            return R.error("登陆异常");
+        //查询帖子是否存在
+        post = postService.getById(postId);
+        if (post == null)
+            return R.error("帖子不存在");
+
+        if(postService.cancelLike(user.getId(),postId))
+            return R.success();
+
+        return R.error();
+    }
+
+
+
 }

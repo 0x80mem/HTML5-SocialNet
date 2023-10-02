@@ -11,7 +11,6 @@ export default createStore({
     //存储用户信息
     userInfo: {
       id: 0,
-      isLogin: false,
       username: ''
     },
     //存储帖子信息 数组形式
@@ -169,6 +168,7 @@ export default createStore({
     },
 
   },
+
   actions: {
   },
   modules: {
