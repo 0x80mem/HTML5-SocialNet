@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import RecommendView from '../views/RecommendView.vue'
+import DecodeView from '../views/DecodeView.vue'
 
 const routes = [
   {
@@ -9,8 +9,8 @@ const routes = [
   },
   {
     path: '/',
-    name: 'recommend',
-    component: RecommendView
+    name: 'decode',
+    component: DecodeView
   },
   // {
   //   path: '/register',
