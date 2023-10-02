@@ -1,60 +1,173 @@
 import axios from 'axios'
 import { createStore } from 'vuex'
+import { dlogin } from './debug_interface'
 
+var api = axios.create({
+  baseURL:'/api',
+  timeout:1000
+})
 export default createStore({
   state: {
-    isDebug: true,
+    //存储用户信息
     userInfo: {
       id: 0,
       isLogin: false,
       username: ''
     },
-    postList: []
+    //存储帖子信息 数组形式
+    postList: [],
+    isDebug: true,
   },
   getters: {
   },
   mutations: {
-    Login(state, [username, password])
+    login(state, [username, password])
     {
+      if (state.isDebug)
+      {
+        state.userInfo.id = dlogin(username, password);
+        state.userInfo.isLogin = true;
+        state.userInfo.username = username;
+        return;
+      }
       console.log(username)
       console.log(password)
-      axios.post("/api/user/login", {name: username, password: password}).then(res => {
+      api.post("/user/login", {name: username, password: password}).then(res => {
         state.userInfo.id = res;
-        state.userInfo.username = username;
         state.userInfo.isLogin = true;
+        state.userInfo.username = username;
+        console.log(res);
       }).catch(res=>{
         console.log(res);
-        if (state.isDebug)
-        {
-          state.userInfo.username = username;
-          state.userInfo.isLogin = true;
-        }
+      })
+    },
+    logout(){
+      api.get("/user/logout").then(res => {
+  
+        console.log(res);
+      }).catch(res=>{
+        console.log(res);
+      })
+    },
+    register(state,[username,password]){
+      api.post('/api/user/register',{name:username,password:password}).then(res=>{
+        console.log(username);//我们可以试一下
+        console.log(res)
+        state.userInfo;
+      }).catch(res=>{
+        console.error(res);
+      })
+    },
+    accurateQueryByName([name]){
+      api.post('/user/accurateQueryByName', {name:name}).then(res=>{
+        console.log(res);
+      }).catch(res => {
+        console.log(res);
+      })
+    },
+    fuzzyQueryByName([name]){
+      api.post('/user/fuzzyQueryByName', {name:name}).then(res=>{
+        console.log(res);
+      }).catch(res => {
+        console.log(res);
+      })
+    },
+    queryByID([id]){
+      api.post('/user/queryByID', {id:id}).then(res=>{
+        console.log(res);
+      }).catch(res => {
+        console.log(res);
+      })
+    },
+    setName([name]){
+      api.patch('/user/setName', {name:name}).then(res=>{
+        console.log(res);
+      }).catch(res => {
+        console.log(res);
+      })
+    },
+    setPassword([password]){
+      api.patch('/user/setPassword', {password:password}).then(res=>{
+        console.log(res);
+      }).catch(res => {
+        console.log(res);
+      })
+    },
+    cancel(){
+      api.delete('/user/setPassword').then(res=>{
+        console.log(res);
+      }).catch(res => {
+        console.log(res);
       })
     },
     getPostList(state)
     {
-      axios.get('api/post/queryPageOrderByTime', {params:{startNum: 0, pageSize: 99999}}).then(res=>{
+      api.post('/post/queryPageOrderByTime', {startNum: 0, pageSize: 99999}).then(res=>{
         state.postList = res.data.records;
-        console.log(res);
       }).catch(res => {
         console.log(res);
-        if (state.isDebug)
-        {
-          console.log(state.userInfo.username);
-          for (var i = 0; i < 10; i++)
-              state.postList.push(state.userInfo.username + " " + i);
-        }
+        console.log(state.userInfo.username);
+        //state.postList = [];
+        for (var i = 0; i < 10; i++)
+          state.postList.push(state.userInfo.username + " " + i);
       })
     },
     post(state, content)
     {
-      axios.post('/post', {id: state.userInfo.id, post: content}).then(res=>{
+      api.post('/post/post', {id: state.userInfo.id, post: content}).then(res=>{
         console.log(res);
-      }).catch(res => {
-        console.log(res);
+      }).catch(err => {
+        console.log(err);
       })
       state.postList.push(state.userInfo.username + " " + content)
-    }
+    },
+    share([postId])
+    {
+      api.post('/post/post', {postId: postId}).then(res=>{
+        console.log(res);
+      }).catch(err => {
+        console.log(err);
+      })
+    },
+    queryByContent(state,[content])
+    {
+      api.get('/post/queryByContent', {
+        params:{
+          content: content
+        }
+      }).then(res=>{
+        state.postList=res.data;
+        console.log(res);
+      }).catch(err => {
+        console.log(err);
+      })
+    },
+    queryByAuthor(state,[author])
+    {
+      api.get('/post/queryByAuthor', {
+        params:{
+          author: author
+        }
+      }).then(res=>{
+        state.postList=res.data;
+        console.log(res);
+      }).catch(err => {
+        console.log(err);
+      })
+    },
+    delete_post([id])
+    {
+      api.delete('/post/ delete', {
+        params:{
+          id: id
+        }
+      }).then(res=>{
+        console.log(res);
+      }).catch(err => {
+        console.log(err);
+      })
+    },
+
   },
   actions: {
   },
