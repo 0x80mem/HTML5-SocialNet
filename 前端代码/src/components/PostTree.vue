@@ -1,5 +1,5 @@
 <template>
-    <RecNode :post="post" :parNode="post" :getFunc="getFunc" :deleteFunc="deleteFunc"></RecNode>
+    <RecNode :post="Post" :parNode="Post" :visit="visit" :getFunc="getFunc" :deleteFunc="deleteFunc"></RecNode>
 </template>
 
 <script>
@@ -7,6 +7,8 @@
 import { createApp,  } from 'vue';
 import store from '../store';
 import RecNode from './RecNode.vue';
+import Recursive from '@/scripts/Recursive';
+import { dgetPost } from '@/store/debug_interface';
 
 const app = createApp();
 app.use(RecNode)
@@ -22,17 +24,23 @@ export default {
         type: Number,
         default: 0
     },
+    showLevel: {
+        type: String,
+        default: 'full'
+    },
   },
-  setup() {
+  setup(props) {
     const getFunc = (id) => {
-        return new Post(id)
+        return dgetPost(id);
     }
     const deleteFunc = (id) => {
-        return new Post(id)
+        return id
     }
-    const Post = getFunc(this.props.id)
+    let Post = getFunc(props.id)
+    let visit = Recursive(Post, props.showLevel, getFunc, deleteFunc)
     return {
         Post, 
+        visit,
         getFunc,
         deleteFunc,
     }; 
