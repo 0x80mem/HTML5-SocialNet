@@ -1,48 +1,43 @@
-package com.jlusw.html.controller;
+package com.html.nds.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.jlusw.html.common.R;
-import com.jlusw.html.common.UserUtil;
-import com.jlusw.html.entity.Collect;
-import com.jlusw.html.entity.Follow;
-import com.jlusw.html.entity.User;
-import com.jlusw.html.entity.UserDTO;
-import com.jlusw.html.service.IGroupService;
-import com.jlusw.html.service.UserService;
-import ma.glasnost.orika.MapperFactory;
-import org.apache.ibatis.annotations.Delete;
+import com.html.nds.common.R;
+import com.html.nds.common.DTOUtil;
+import com.html.nds.entity.*;
+import com.html.nds.mapper.RelationMapper;
+import com.html.nds.service.INodeService;
+import com.html.nds.service.IRelationService;
+import com.html.nds.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
-
 
 @RestController
 @RequestMapping("/user")
-@CrossOrigin
 @Transactional
 public class UserController {
     @Autowired
-    private UserService userService;
+    INodeService nodeService;
     @Autowired
-    IGroupService<Collect> collectIGroupService;
+    IUserService userService;
     @Autowired
-    IGroupService<Follow> followIGroupService;
-
+    IRelationService relationService;
+    @Autowired
+    RelationMapper relationMapper;
     /**
      * 1. 登陆
+     *
      * @param request request
-     * @param user 用户信息
+     * @param user    用户信息
      * @return 登录结果
      */
     @PostMapping("/login")
-    public R<Long> login(HttpServletRequest request, @RequestBody User user) {
+    public R<NodeDTO> login(HttpServletRequest request, @RequestBody User user) {
 
 
         String password = user.getPassword();
@@ -62,16 +57,24 @@ public class UserController {
         if (!tuser.getPassword().equals(password)) {
             return R.error("登录失败");
         }
-
+        Integer uid = tuser.getId();
         //登录成功，将用户id存入Session并返回登录成功结果
-        request.getSession().setAttribute("user", tuser.getId());
-        return R.success(tuser.getId());
+        request.getSession().setAttribute("user", uid);
+
+        //生成UserDTO
+        UserDTO userDTO=DTOUtil.toUserDTO(tuser);
+        //生成NodeDTO
+        NodeDTO nodeDTO = DTOUtil.nodeToDTO(nodeService.getById(uid));
+        nodeDTO.setChiNodes(relationService.getChiNodes(uid));
+        R<NodeDTO> r=R.success(nodeDTO);
+        r.add("userInfo",userDTO);
+        return r;
     }
 
 
     /**
      * 2. 注册
-     * @param request request
+     *
      * @param user 用户信息
      * @return 注册结果
      */
@@ -87,13 +90,29 @@ public class UserController {
             return R.error("用户已存在");
         }
         //增加用户
-        user.setRegisterTime(LocalDateTime.now());
-        System.out.println(LocalDateTime.now());
-        if(userService.save(user)){
+        Integer uid = nodeService.generateId();
+        if(!nodeService.save(new Node(uid, "user")))
+            return R.error();
+
+        user.setId(uid);
+        if (userService.save(user)) {
             //初始化
-            Long id =userService.getOne(new LambdaQueryWrapper<User>().eq(User::getName,user.getName())).getId();
-            collectIGroupService.createGroup(id,"默认收藏夹");
-            followIGroupService.createGroup(id,"默认分组");
+            Integer t = nodeService.generateId();
+            nodeService.save(new Node(t,"collect"));
+            relationService.save(new Relation(uid,t));
+
+            t = nodeService.generateId();
+            nodeService.save(new Node(t,"subscribe"));
+            relationService.save(new Relation(uid,t));
+
+            t = nodeService.generateId();
+            nodeService.save(new Node(t,"share"));
+            relationService.save(new Relation(uid,t));
+
+            t = nodeService.generateId();
+            nodeService.save(new Node(t,"like"));
+            relationService.save(new Relation(uid,t));
+
             return R.success();
         }
 
@@ -102,13 +121,14 @@ public class UserController {
 
     /**
      * 3.退出登录
+     *
      * @param request request
      * @return 结果
      */
 
     @GetMapping("/logout")
     public R<String> logout(HttpServletRequest request) {
-        if(request.getSession().getAttribute("user")==null)
+        if (request.getSession().getAttribute("user") == null)
             return R.error("未登录");
         request.getSession().removeAttribute("user");
         return R.success();
@@ -116,14 +136,15 @@ public class UserController {
 
     /**
      * 4. 检查登陆状态
+     *
      * @param request request
      * @return 用户信息
      */
-    private User checkState(HttpServletRequest request){
+    private User checkState(HttpServletRequest request) {
         //获取session用户id
         if (request.getSession().getAttribute("user") == null)
             return null;
-        long id = (long) request.getSession().getAttribute("user");
+        int id = (int) request.getSession().getAttribute("user");
 
         //查询用户是否存在
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
@@ -134,6 +155,7 @@ public class UserController {
 
     /**
      * 5. 注销账号 注销即将用户移入cancelled_user表
+     *
      * @param request request
      * @return 注销结果
      */
@@ -142,27 +164,28 @@ public class UserController {
     public R<String> cancel(HttpServletRequest request) {
 
         //检查登陆状态
-        User user=checkState(request);
+        User user = checkState(request);
         if (user == null)
             return R.error("登陆状态异常");
 
         //删除用户
-        if(userService.cancel(user.getId()))
+        if ( userService.update(new UpdateWrapper<User>().eq("id",user.getId()).set("state",1)))
             return R.success("注销成功");
         return R.success("注销失败");
     }
 
     /**
      * 6. 修改用户名
+     *
      * @param request request
-     * @param name 新用户名
+     * @param name    新用户名
      * @return 修改结果
      */
     @PatchMapping("/setName")
     public R<String> setName(HttpServletRequest request, String name) {
 
         //检查登陆状态
-        User user=checkState(request);
+        User user = checkState(request);
         if (user == null)
             return R.error("登陆状态异常");
 
@@ -179,15 +202,16 @@ public class UserController {
 
     /**
      * 7. 修改密码
-     * @param request request
+     *
+     * @param request  request
      * @param password 新密码
      * @return 修改结果
      */
     @PatchMapping("/setPassword")
-    public R<String>setPassword(HttpServletRequest request, String password){
+    public R<String> setPassword(HttpServletRequest request, String password) {
 
         //检查登陆状态
-        User user=checkState(request);
+        User user = checkState(request);
         if (user == null)
             return R.error("登陆状态异常");
 
@@ -204,42 +228,46 @@ public class UserController {
 
     /**
      * 8.1 依据id查询用户
+     *
      * @param id 用户id
      * @return 用户信息
      */
     @GetMapping("/queryByID")
-    public R<UserDTO> queryByID(Integer id){
-        User user=userService.getById(id);
-        if(user==null)
+    public R<UserDTO> queryByID(Integer id) {
+        User user = userService.getById(id);
+        if (user == null)
             return R.error("用户不存在");
         user.setPassword("");
-        return R.success(UserUtil.toUserDTO(user));
+        return R.success(DTOUtil.toUserDTO(user));
     }
+
     /**
      * 8.2 名称精准查询用户
+     *
      * @param name 用户名
      * @return 用户信息
      */
     @GetMapping("/accurateQueryByName")
-    public R<UserDTO> accurateQueryByName(String name){
+    public R<UserDTO> accurateQueryByName(String name) {
         User user = userService.getOne(new LambdaQueryWrapper<User>().eq(User::getName, name));
-        if(user==null)
+        if (user == null)
             return R.error();
-        return R.success(UserUtil.toUserDTO(user));
+        return R.success(DTOUtil.toUserDTO(user));
     }
+
     /**
      * 8.3 名称模糊查询用户
+     *
      * @param name 用户名
      * @return 用户信息
      */
     @GetMapping("/fuzzyQueryByName")
-    public R<List<UserDTO>> fuzzyQueryByName(String name){
+    public R<List<UserDTO>> fuzzyQueryByName(String name) {
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.like(User::getName, name);
         List<User> users = userService.list(queryWrapper);
-        return R.success(UserUtil.toUserDTOs(users));
+        return R.success(DTOUtil.toUserDTOs(users));
     }
-
 
 
 }

@@ -1,6 +1,5 @@
 package com.html.nds.entity;
 
-import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -13,18 +12,17 @@ import lombok.experimental.Accessors;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("post")
-public class Post implements Serializable {
+@TableName("content")
+public class Content implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @TableId(value = "id", type = IdType.NONE)
     private Integer id;
 
-    private Integer author;
+    private String title;
 
-    @TableLogic
-    private Integer state;
+    private String content;
 
 
 }

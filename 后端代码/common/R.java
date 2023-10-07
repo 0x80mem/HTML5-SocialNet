@@ -1,4 +1,4 @@
-package com.jlusw.html.common;
+package com.html.nds.common;
 
 import lombok.Data;
 
@@ -30,7 +30,12 @@ public class R<T> {
         r.code = 1;
         return r;
     }
-
+    public static <T> R<T> error(Integer code ,String msg) {
+        R<T> r = new R<T>();
+        r.msg = msg;
+        r.code = code;
+        return r;
+    }
     public static <T> R<T> error(String msg) {
         R<T> r = new R<T>();
         r.msg = msg;
@@ -43,9 +48,14 @@ public class R<T> {
         r.code = 0;
         return r;
     }
-    public R<T> add(String key, Object value) {
+    public void add(String key, Object value) {
         this.map.put(key, value);
-        return this;
+    }
+    public static R<String> result(boolean flag){
+        if(flag)
+            return R.success();
+        return R.error();
     }
 
 }
+
