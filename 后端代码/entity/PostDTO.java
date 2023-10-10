@@ -1,17 +1,15 @@
-package com.jlusw.html.entity;
+package com.html.nds.entity;
 
 import lombok.Data;
 
-import java.time.LocalDateTime;
-
 @Data
 public class PostDTO {
-    private Long postId;
-    private Long authorId;
-    private String authorName;
-    private String content;
-    private LocalDateTime time;
-    private Integer likes;
-    private Integer share;
-    private Integer collect;
+    private NodeDTO node;
+
+    private Integer author;
+
+    public PostDTO(NodeDTO node, Integer author) {
+        this.node = node;
+        this.author = author;
+    }
 }
