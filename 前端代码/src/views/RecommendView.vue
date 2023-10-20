@@ -3,6 +3,7 @@
 <div v-touch:panup="onClickButton"
      v-touch:panright="onPanupLeft"
 >
+    <nav-bar title="Recommend"></nav-bar>
     <div>
         <li v-for="item in postList" :key="item"  
          v-touch:panup="onClickButton"
@@ -46,6 +47,7 @@ import { createApp, ref } from 'vue';
 import { ActionBar, ActionBarIcon, ActionBarButton, Popup } from 'vant';
 import EditorView from './EditorView.vue';
 import UserView from './UserView.vue'
+import NavBar from '@/components/AppNav.vue';
 
 const app = createApp();
 app.use(ActionBar);
@@ -58,6 +60,7 @@ export default{
     components: {
         EditorView,
         UserView,
+        NavBar,
     },
     setup() {
         store.commit("getPostList");

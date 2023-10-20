@@ -110,7 +110,6 @@ export default createStore({
         state.postList = res.data;
       }).catch(res => {
         console.log(res);
-    
       })
     },
     post(state, content,title)

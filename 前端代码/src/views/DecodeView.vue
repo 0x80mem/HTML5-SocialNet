@@ -4,18 +4,9 @@
         <recommend-view></recommend-view>
       </div>
       <div v-else-if="type == 'id'">
-        <van-popup
-          v-model:show="showBottom"
-          position="bottom"
-          :style="{ height: '50%' }"
-        >
-          <EditorView />
-        </van-popup>
-        <post-tree :id="id" showLevel="full"></post-tree>
-        <button @click="showBottom = true" class="edit-button">写文章</button>
+        <user-info-view :id="id" />
       </div>
       <div v-else>
-        <button @click="showBottom = false" class="edit-button">写文章</button>
       </div>
     </div>
   </template>
@@ -23,14 +14,12 @@
   <script>
   import { useRoute } from "vue-router";
   import RecommendView from './RecommendView.vue';
-  import PostTree from "@/components/PostTree.vue";
-  import EditorView from './EditorView.vue';
   import {ref} from "vue";
+  import UserInfoView from './UserInfoView.vue';
   export default {
     components: {
       RecommendView,
-      PostTree,
-      EditorView,
+      UserInfoView,
     },
     setup() {
       const route = useRoute();
