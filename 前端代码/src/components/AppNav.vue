@@ -1,0 +1,55 @@
+<template>
+  <van-nav-bar :title="title" @click-left="showUser = true" @click-right="showEditor = true">
+    <template v-slot:left>
+      <van-icon name="user-o" @click="showUser = true" />
+    </template>
+    <template v-slot:right>
+      <van-icon name="edit" @click="showEditor = true" />
+    </template>
+  </van-nav-bar>
+
+  <van-popup
+    :style="{ width: '50%', height: '100%' }"
+    v-model:show="showUser" 
+    position="left">
+    <UserView/>
+  </van-popup>
+  <van-popup
+    :style="{ width: '100%', height: '100%' }"
+    v-model:show="showEditor" 
+    position="buttom">
+    <EditorView/>
+  </van-popup>
+</template>
+
+
+<style scoped>
+</style>
+
+<script>
+import { ref } from 'vue';
+import UserView from '../views/UserView.vue';
+import EditorView from '@/views/EditorView.vue';
+
+export default {
+  components: {
+    UserView,
+    EditorView
+},
+  props: {
+    title: {
+      type: String,
+      default: 'Recommend',
+    },
+  },
+  setup() {
+    const showUser = ref(false);
+    const showEditor = ref(false);
+
+    return {
+      showUser,
+      showEditor,
+    };
+  },
+};
+</script>
