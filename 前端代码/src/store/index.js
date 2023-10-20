@@ -3,19 +3,18 @@ import { createStore } from 'vuex'
 import { dlogin } from './debug_interface'
 
 var api = axios.create({
-  baseURL:'/api',
+  baseURL:'http://8.134.166.163/api',
   timeout:1000
 })
 export default createStore({
   state: {
-    //存储用户信息
     userInfo: {
       id: 0,
+      isLogin: false,
       username: ''
     },
-    //存储帖子信息 数组形式
     postList: [],
-    isDebug: true,
+    isDebug: false,
   },
   getters: {
   },
@@ -49,8 +48,8 @@ export default createStore({
       })
     },
     register(state,[username,password]){
-      api.post('/api/user/register',{name:username,password:password}).then(res=>{
-        console.log(username);//我们可以试一下
+      api.post('/user/register',{name:username,password:password}).then(res=>{
+        console.log(username);
         console.log(res)
         state.userInfo;
       }).catch(res=>{
@@ -101,28 +100,35 @@ export default createStore({
     },
     getPostList(state)
     {
-      api.post('/post/queryPageOrderByTime', {startNum: 0, pageSize: 99999}).then(res=>{
-        state.postList = res.data.records;
+      api.get('/post/queryPageOrderByTime', {
+        params:{
+          startNum: 0,
+          pageSize: 99999
+      }
+      }).then(res=>{
+        console.log(res);
+        state.postList = res.data;
       }).catch(res => {
         console.log(res);
-        console.log(state.userInfo.username);
-        //state.postList = [];
-        for (var i = 0; i < 10; i++)
-          state.postList.push(state.userInfo.username + " " + i);
       })
     },
-    post(state, content)
+    post(state, content,title)
     {
-      api.post('/post/post', {id: state.userInfo.id, post: content}).then(res=>{
+      api.post('/post/post', {
+        content:{
+          title,
+          content
+        }
+      }).then(res=>{
         console.log(res);
       }).catch(err => {
         console.log(err);
       })
       state.postList.push(state.userInfo.username + " " + content)
     },
-    share([postId])
+    share([postId,shared,shareNode,userId])
     {
-      api.post('/post/post', {postId: postId}).then(res=>{
+      api.post('/rel/post', {postId: postId,shared:shared,shareNode:shareNode,userId:userId}).then(res=>{
         console.log(res);
       }).catch(err => {
         console.log(err);
@@ -141,16 +147,30 @@ export default createStore({
         console.log(err);
       })
     },
-    queryByAuthor(state,[author])
+    queryByAuthor(state,[userId])
     {
       api.get('/post/queryByAuthor', {
         params:{
-          author: author
+          userId:userId
         }
       }).then(res=>{
         state.postList=res.data;
         console.log(res);
       }).catch(err => {
+        console.log(err);
+      })
+    },
+    queryPageOrderByTime(state,[startNum,pageSize])
+    {
+      api.get('/post/queryPageOrderByTime',{
+        params:{
+          startNum:startNum,
+          pageSize:pageSize
+        }
+      }).then(res=>{
+        state.postList=res.data.data.data;
+        console.log(res);
+      }).catch(err=>{
         console.log(err);
       })
     },
@@ -166,6 +186,111 @@ export default createStore({
         console.log(err);
       })
     },
+    collect([postId,collected,collectNode,userId]){
+      api.post('/rel/collect',{postId:postId,collected:collected,collectNode:collectNode,userId:userId}).then(res=>{
+        console.log(res);
+      }).catch(err=>{
+        console.log(err);
+      })
+    },
+    like([postId,collected,collectNode,liked,likeNode,userId]){
+      api.post('/rel/like',
+      {postId:postId,collected:collected,collectNode:collectNode,liked:liked,likeNode:likeNode,userId:userId}).then(res=>{
+        console.log(res);
+      }).catch(err=>{
+        console.log(err);
+      })
+    },
+    cancelCollect([postId,collectNode]){
+      api.delete('/rel/cancelCollect',{
+        params:{
+          postId:postId,
+          collectNode:collectNode
+        }
+      }).then(res=>{
+        console.log(res);
+      }).catch(err=>{
+        console.log(err);
+      })
+    },
+    cancelLike([postId,liked,likeNode]){
+      api.delete('/rel/cancelLike',{
+        params:{
+          postId:postId,
+          liked:liked,
+          likeNode
+        }
+      }).then(res=>{
+        console.log(res);
+      }).catch(err=>{
+        console.log(err);
+      })
+    },
+    cancelShare([postId,shared,shareNode]){
+      api.delete('/rel/cancelShare',{
+        params:{
+          postId:postId,
+          shared:shared,
+          shareNode:shareNode
+        }
+      }).then(res=>{
+        console.log(res);
+      }).catch(err=>{
+        console.log(err);
+      })
+    },
+    createNode([id,type,title,content]){
+      api.post('/node/createNode',{
+          id:id,  
+          type:type,
+          content:{
+            title,
+            content
+          }
+      }).then(res=>{
+        console.log(res);
+      }).catch(err=>{
+        console.log(err);
+      })
+
+    },
+    removeNode([parId,nodeId]){
+      api.delete('/node/removeNode',{
+        params:{
+          parId:parId,
+          nodeId:nodeId
+        }
+      }).then(res=>{
+        console.log(res);
+      }).catch(err=>{
+        console.log(err);
+      })
+    },
+    updateContent([id,content,title]){
+      api.post('/node/updateContent',{
+        id:id,
+        content:{
+          title,
+          content
+        }
+      }).then(res=>{
+        console.log(res);
+      }).catch(err=>{
+        console.log(err);
+      })
+    },
+    getContent([id]){
+      api.get('/node/getContent',{
+        params:{
+          id:id
+        }
+      }).then(res=>{
+        console.log(res);
+      }).catch(err=>{
+        console.log(err);
+      })
+    }
+   
 
   },
 
