@@ -13,3 +13,13 @@ export function dlogin(username, password)
         return 2
     return 1;
 }
+
+export function dgetPostList()
+{
+    let list = []
+    for (let i in test_case)
+        if (test_case[i].type == 'post')
+            list.push(test_case[i].id)
+    console.log('list', list)
+    return list
+}

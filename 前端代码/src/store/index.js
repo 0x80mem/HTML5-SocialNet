@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { createStore } from 'vuex'
-import { dlogin } from './debug_interface'
+import { dlogin, dgetPostList } from './debug_interface'
 
 var api = axios.create({
   baseURL:'http://8.134.166.163/api',
@@ -14,7 +14,7 @@ export default createStore({
       username: ''
     },
     postList: [],
-    isDebug: false,
+    isDebug: true,
   },
   getters: {
   },
@@ -100,6 +100,12 @@ export default createStore({
     },
     getPostList(state)
     {
+      if (state.isDebug)
+      {
+        state.postList = dgetPostList();
+        console.log("getPostList", state.postList)
+        return;
+      }
       api.get('/post/queryPageOrderByTime', {
         params:{
           startNum: 0,
