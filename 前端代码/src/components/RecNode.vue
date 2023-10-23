@@ -1,14 +1,23 @@
 <template>
     <div v-if="typeof(post) == 'object'">
-        <default-post :post="post" :parNode="parNode" :visit="visit" :getFunc="getFunc" :deleteFunc="deleteFunc"></default-post>
+        <div v-if="post.type == 'post'">
+          <article-post :post="post" :parNode="parNode" :visit="visit" :getFunc="getFunc" :deleteFunc="deleteFunc"></article-post>
+        </div>
+        <div v-else-if="post.type == 'user'">
+          <user-info-post :post="post" :parNode="parNode" :visit="visit" :getFunc="getFunc" :deleteFunc="deleteFunc"></user-info-post>
+        </div>
+        <div v-else>
+          <default-post :post="post" :parNode="parNode" :visit="visit" :getFunc="getFunc" :deleteFunc="deleteFunc"></default-post>
+        </div>
     </div>
 </template>
 
 <script>
 import { createApp,  } from 'vue';
 import store from '../store';
-import Post from '@/scripts/Post';
 import DefaultPost from './DefaultPost.vue';
+import ArticlePost from './ArticlePost.vue';
+import UserInfoPost from './UserInfoPost.vue';
 
 const app = createApp();
 app.use(DefaultPost);
@@ -18,13 +27,15 @@ export default {
   name: 'RecNode',
   components: {
     DefaultPost,
+    ArticlePost,
+    UserInfoPost,
   },
   props: {
     post: {
-        type: Post,
+        type: Object,
     },
     parNode: {
-        type: Post,
+        type: Object,
     },
     visit: {
         type: Set,
