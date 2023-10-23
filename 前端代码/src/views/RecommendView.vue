@@ -1,29 +1,18 @@
 <template>
 
-<div v-touch:panup="onClickButton"
-     v-touch:panright="onPanupLeft"
->
+<div v-touch:panright="onPanupLeft">
     <nav-bar title="Recommend"></nav-bar>
     <div>
         <li v-for="item in postList" :key="item"  
-         v-touch:panup="onClickButton"
          v-touch:panright="onPanupLeft"
          >
-            <p>{{ item }}</p> 
+         <post-tree :id="item" showLevel="zip"></post-tree>
         </li>
 
     </div>
-<van-action-bar>
-  <van-action-bar-button icon="plus" @click="onClickButton" />
-</van-action-bar>
-
-<van-popup
-  v-model:show="showBottom"
-  position="bottom"
-  :style="{ height: '50%' }"
->
-<EditorView />
-</van-popup>
+    <tool-basket>
+        <home-tool></home-tool>
+    </tool-basket>
 
 <van-popup
   v-model:show="showLeft"
@@ -45,9 +34,13 @@
 import store from '../store';
 import { createApp, ref } from 'vue';
 import { ActionBar, ActionBarIcon, ActionBarButton, Popup } from 'vant';
-import EditorView from './EditorView.vue';
+import { mapState } from 'vuex';
 import UserView from './UserView.vue'
 import NavBar from '@/components/AppNav.vue';
+import ToolBasket from '@/components/ToolBasket.vue';
+import HomeTool from '@/components/HomeTool.vue';
+import { Button } from 'vant';
+import PostTree from '@/components/PostTree.vue';
 
 const app = createApp();
 app.use(ActionBar);
@@ -58,31 +51,31 @@ app.use(Popup);
 export default{
     store,
     components: {
-        EditorView,
         UserView,
         NavBar,
+        ToolBasket,
+        HomeTool,
+        PostTree,
+        [Button.name]: Button
+    },
+    computed: {
+        ...mapState(['postList'])
     },
     setup() {
-        store.commit("getPostList");
-        const showBottom = ref(false)
         const showLeft = ref(false)
-        const onClickButton = ()=> {
-            if (showLeft.value != true)
-                showBottom.value = true
-        }
         const onPanupLeft = ()=> {
-            if (showBottom.value != true)
-                showLeft.value = true
+            showLeft.value = true
         }
-        let postList = store.state.postList
-        const getData = ()=> {
-            postList = store.state.postList
+        let postList = []
+        const getData = () => {
+            store.commit("getPostList");
+            postList = store.state.postList;
+            console.log(postList);
         }
+        getData()
     return {
-        showBottom,
         showLeft,
         postList,
-        onClickButton,
         onPanupLeft,
         getData
     };

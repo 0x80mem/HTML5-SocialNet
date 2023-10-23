@@ -1,6 +1,9 @@
 <template>
     <app-nav :title="UserName"></app-nav>
     <post-tree :id="id" showLevel="full"></post-tree>
+    <tool-basket>
+        <home-tool></home-tool>
+    </tool-basket>
 </template>
 
 <script>
