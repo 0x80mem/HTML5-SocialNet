@@ -1,52 +1,86 @@
 <template>
-    <div @click="onClick(post)" >
-      {{ post.id }} {{ parNode.id }} {{ post.showLevel }}    {{ post.type }} 
-      <post-content :content="post.content" :showLevel="post.showLevel" :type="post.type"></post-content>
-        <div v-if="post.chiPost.length && typeof(post.chiPost[0]) == 'object'">
-            <div v-for="sub in post.chiPost" :key="sub.id" :sub="sub">
-                <div v-if="key != parNode.id">
-                    <RecNode :post="sub" :parNode="post" :visit="visit" :getFunc="getFunc" :deleteFunc="deleteFunc"></RecNode>
-                </div>
-            </div>
+    <div @click="onClick(post)" class="post-container">
+      <div class="post-info">
+        {{ post.id }} {{ parNode.id }} {{ post.showLevel }} {{ post.type }}
+      </div>
+      <div class="post-content">
+        <div class="title">{{ post.content.title }}</div>
+        <div class="content" v-if="(!isContentCollapsed || !isContentOverflow)">
+          {{ post.content.content }}
+          <div v-if="isContentOverflow">
+          <button @click="toggleCollapse">折叠</button>
+          </div>
         </div>
-        <div v-if="post.parPost.length && typeof(post.parPost[0]) == 'object'">
-            <div v-for="sub in post.parPost" :key="sub.id" :sub="sub">
-                <div v-if="key != parNode.id" class="content-wrapper">
-                    <RecNode :post="sub" :parNode="post" :visit="visit" :getFunc="getFunc" :deleteFunc="deleteFunc"></RecNode>
-                </div>
-            </div>
+        <div v-else>
+          {{ post.content.content.slice(0, contentLimit) }}...
+          <button @click="toggleCollapse">展开</button>
         </div>
+      </div>
+      <div class="child-posts" v-if="post.chiPost.length && typeof(post.chiPost[0]) == 'object'">
+        <div v-for="sub in post.chiPost" :key="sub.id" :sub="sub">
+          <div v-if="key != parNode.id" >
+            <RecNode :post="sub" :parNode="post" :visit="visit" :getFunc="getFunc" :deleteFunc="deleteFunc"></RecNode>
+          </div>
+        </div>
+      </div>
+      <div class="parent-posts" v-if="post.parPost.length && typeof(post.parPost[0]) == 'object'">
+        <div v-for="sub in post.parPost" :key="sub.id" :sub="sub">
+          <div v-if="key != parNode.id" class="content-wrapper">
+            <RecNode :post="sub" :parNode="post" :visit="visit" :getFunc="getFunc" :deleteFunc="deleteFunc"></RecNode>
+          </div>
+        </div>
+      </div>
     </div>
-</template>
+  </template>
 <style>
-.post-content-wrapper {
-  display: flex;
+.post-container {
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin: 10px;
+  background-color: #e7fbf9;
+}
+
+.post-info {
+  font-weight: bold;
+  margin-bottom: 10px;
 }
 
 .post-content {
-  margin-right: 20px;
+  margin-top: 10px;
+  padding: 10px;
+}
+
+.title {
+  font-weight: bold;
+}
+
+.child-posts {
+  background-color: #83f5bc;
+  margin-top: 10px;
+  padding: 10px;
+}
+
+.parent-posts {
+  margin-top: 10px;
 }
 
 .content-wrapper {
   margin-bottom: 20px;
 }
-
-.post-type {
-  margin-right: 10px;
-  font-weight: bold;
-}
 </style>
+
+
 <script>
 import { createApp,  } from 'vue';
 import { useRouter } from "vue-router"
-import PostContent from './PostContent.vue';
+
 import store from '../store';
 import RecNode from './RecNode.vue';
 import Expand from '@/scripts/Expand';
 import ShowLevel from '@/scripts/ShowLevel';
 import {Icon, Cell, CellGroup } from 'vant';
 const app = createApp();
-app.use(PostContent);
+
 app.use(RecNode);
 app.use(Icon);
 app.use(Cell);
@@ -55,7 +89,7 @@ export default {
   store,
   name: 'DefaultPost',
   components: {
-    PostContent,
+
     RecNode,
   },
   props: {
@@ -75,9 +109,25 @@ export default {
         type: Function,
     }
   },
+  data() {
+    return {
+      isContentCollapsed: true,
+      contentLimit: 10,
+    };
+  },
+  computed: {
+    isContentOverflow() {
+      return this.post.content.content.length > this.contentLimit;
+    },
+  },
+  methods: {
+    toggleCollapse() {
+      this.isContentCollapsed = !this.isContentCollapsed;
+    },
+  },
   setup() {
     const router = useRouter()
-   
+
     const expand = (post, visit, showLevel, getFunc, deleteFunc) => {
         Expand(post, visit, showLevel, getFunc, deleteFunc)
     }
@@ -86,8 +136,6 @@ export default {
             router.push({path: "", query: {id: post.id}})
     }
     return {
-       
-     
         expand,
         onClick,
     };

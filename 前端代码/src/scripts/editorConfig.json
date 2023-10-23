@@ -1,0 +1,18 @@
+{
+    "language": "zh_CN",
+    "placeholder": "在这里输入文字",
+    "min_width": 320,
+    "min_height": 220,
+    "height": 500,
+    "resize": "both",
+    "branding": false,
+    "statusbar": false,
+    "elementpath": false,
+    "toolbar_location": "bottom",
+    "font_formats": "微软雅黑=Microsoft YaHei,Helvetica Neue,PingFang SC,sans-serif;苹果苹方=PingFang SC,Microsoft YaHei,sans-serif;宋体=simsun,serif;仿宋体=FangSong,serif;黑体=SimHei,sans-serif;Arial=arial,helvetica,sans-serif;Arial Black=arial black,avant garde;Book Antiqua=book antiqua,palatino;",
+    "plugins": "code advlist lists image imagetools emoticons customButton",
+    "toolbar": [
+      "image emoticons forecolor backcolor bold italic underline strikethrough link anchor | customButton"
+    ],
+    "paste_data_images": true
+  }
