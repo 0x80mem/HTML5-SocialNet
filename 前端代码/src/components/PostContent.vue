@@ -8,7 +8,6 @@
 import { createApp,  } from 'vue';
 import store from '../store';
 import { Form } from 'vant';
-import Content from '@/scripts/Content';
 
 const app = createApp();
 app.use(Form);
@@ -18,7 +17,7 @@ export default {
   name: 'PostContent',
   props: {
     content: {
-        type: Content,
+        type: Object,
     },
     showLevel: {
         type: Number,

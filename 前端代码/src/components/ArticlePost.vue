@@ -1,17 +1,17 @@
 <template>
     <div @click="onClick(post)" >
-        <div v-if="post.parPost.length && typeof(post.parPost[0]) == 'object'">
-            <div v-for="sub in post.parPost" :key="sub.id" :sub="sub">
-                <div v-if="key != parNode.id" class="content-wrapper">
-                    <RecNode :post="sub" :parNode="post" :visit="visit" :getFunc="getFunc" :deleteFunc="deleteFunc"></RecNode>
-                </div>
-            </div>
-        </div>
       {{ post.id }} {{ parNode.id }} {{ post.showLevel }}    {{ post.type }} 
       <post-content :content="post.content" :showLevel="post.showLevel" :type="post.type"></post-content>
         <div v-if="post.chiPost.length && typeof(post.chiPost[0]) == 'object'">
             <div v-for="sub in post.chiPost" :key="sub.id" :sub="sub">
                 <div v-if="key != parNode.id">
+                    <RecNode :post="sub" :parNode="post" :visit="visit" :getFunc="getFunc" :deleteFunc="deleteFunc"></RecNode>
+                </div>
+            </div>
+        </div>
+        <div v-if="post.parPost.length && typeof(post.parPost[0]) == 'object'">
+            <div v-for="sub in post.parPost" :key="sub.id" :sub="sub">
+                <div v-if="key != parNode.id" class="content-wrapper">
                     <RecNode :post="sub" :parNode="post" :visit="visit" :getFunc="getFunc" :deleteFunc="deleteFunc"></RecNode>
                 </div>
             </div>
