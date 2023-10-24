@@ -1,84 +1,135 @@
 <template>
-    <div @click="onClick(post)" class="post-container">
-      <div class="post-info">
-        {{ post.id }} {{ parNode.id }} {{ post.showLevel }} {{ post.type }}
+  <div class="post-container">
+    <div class="post-content">
+      <div
+        class="title"
+        @click="onClick(post)"
+        v-if="showLevel >= ShowLevel['title']"
+      >
+        {{ title }}
       </div>
-      <div class="post-content">
-        <div class="title">{{ post.content.title }}</div>
-        <div class="content" v-if="(!isContentCollapsed || !isContentOverflow)">
-          {{ post.content.content }}
-          <div v-if="isContentOverflow">
-          <button @click="toggleCollapse">折叠</button>
-          </div>
-        </div>
-        <div v-else>
-          {{ post.content.content.slice(0, contentLimit) }}...
-          <button @click="toggleCollapse">展开</button>
-        </div>
-      </div>
-      <div class="child-posts" v-if="post.chiPost.length && typeof(post.chiPost[0]) == 'object'">
-        <div v-for="sub in post.chiPost" :key="sub.id" :sub="sub">
-          <div v-if="key != parNode.id" >
-            <RecNode :post="sub" :parNode="post" :visit="visit" :getFunc="getFunc" :deleteFunc="deleteFunc"></RecNode>
+      <div
+        class="author"
+        v-if="showLevel >= ShowLevel['author']"
+      >
+        <div v-for="author in authors" :key="author.id">
+          <div class="authors">
+            <div @click="onClick(author.id)"> {{ author.title }} </div>
+            <van-icon name="plus" @click="subscribe(author.id)" />
           </div>
         </div>
       </div>
-      <div class="parent-posts" v-if="post.parPost.length && typeof(post.parPost[0]) == 'object'">
-        <div v-for="sub in post.parPost" :key="sub.id" :sub="sub">
-          <div v-if="key != parNode.id" class="content-wrapper">
-            <RecNode :post="sub" :parNode="post" :visit="visit" :getFunc="getFunc" :deleteFunc="deleteFunc"></RecNode>
+      <div class="content" v-if="showLevel >= ShowLevel['zip']">
+        <div v-if="showLevel == ShowLevel['zip']">
+          <div class="show-less" @click="showMore()">
+            {{ content }}
+          </div>
+          <div class="options">
+            <div class="like"> <van-icon name="like" /><span>{{ like }}</span></div>
+            <div class="comment"> <van-icon name="comment" /><span>{{ comment }}</span></div>
+            <div class="collect"> <van-icon name="star" /><span>{{ star }}</span> </div>
+            <div class="expand"> <van-icon name="arrow-down" @click="showMore()"/> </div>
+          </div>
+        </div>
+        <div v-else-if="showLevel >= ShowLevel['full']">
+          <div class="show-more">
+            {{ content }}
+          </div>
+          <div class="options">
+            <div class="like"> <van-icon name="like" @click="clickLike()"/><span>{{ like }}</span></div>
+            <div class="comment"> <van-icon name="comment" /><span>{{ comment }}</span></div>
+            <div class="collect"> <van-icon name="star" @click="clickStar()"/><span>{{ star }}</span> </div> 
+            <div class="expand"> <van-icon name="arrow-up" @click="showLess()" /> </div>
           </div>
         </div>
       </div>
     </div>
-  </template>
+  </div>
+</template>
 <style>
 .post-container {
   border: 1px solid #ccc;
+  background-color: #fff;
   padding: 10px;
   margin: 10px;
-  background-color: #e7fbf9;
-}
-
-.post-info {
-  font-weight: bold;
-  margin-bottom: 10px;
 }
 
 .post-content {
-  margin-top: 10px;
-  padding: 10px;
+  background-color: #fff;
+  color: #333;
+}
+
+.title,
+.author,
+.content {
+  text-align: left;
 }
 
 .title {
+  color: #000;
+  font-size: large;
   font-weight: bold;
 }
 
-.child-posts {
-  background-color: #83f5bc;
-  margin-top: 10px;
-  padding: 10px;
+.author {
+  font-size: small;
+  color: #666;
 }
 
-.parent-posts {
+.content {
+  width: 100%;
+}
+
+.content div {
+  width: 100%;
+}
+
+.show-less {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 3em;
+}
+
+.show-more {
+  min-height: 3em;
+}
+
+.authors {
+  display: flex;
+}
+
+.options {
+  display: flex;
+  float: left;
   margin-top: 10px;
 }
 
-.content-wrapper {
-  margin-bottom: 20px;
+.options div {
+  width: 4em;
+}
+
+.options div span{
+  margin-left: 5px;
+}
+
+.options > .expand {
+  flex-grow: 1;
+  text-align: right;
 }
 </style>
 
 
 <script>
-import { createApp,  } from 'vue';
-import { useRouter } from "vue-router"
+import { createApp, ref } from "vue";
+import { useRouter } from "vue-router";
 
-import store from '../store';
-import RecNode from './RecNode.vue';
-import Expand from '@/scripts/Expand';
-import ShowLevel from '@/scripts/ShowLevel';
-import {Icon, Cell, CellGroup } from 'vant';
+import store from "../store";
+import RecNode from "./RecNode.vue";
+import Expand from "@/scripts/Expand";
+import ShowLevel from "@/scripts/ShowLevel";
+import { Icon, Cell, CellGroup } from "vant";
 const app = createApp();
 
 app.use(RecNode);
@@ -87,57 +138,110 @@ app.use(Cell);
 app.use(CellGroup);
 export default {
   store,
-  name: 'DefaultPost',
-  components: {
-
-    RecNode,
-  },
+  name: "DefaultPost",
+  components: {},
   props: {
     post: {
-        type: Object,
+      type: Object,
     },
     parNode: {
-        type: Object,
+      type: Object,
     },
     visit: {
-        type: Set,
+      type: Set,
     },
     getFunc: {
-        type: Function,
+      type: Function,
     },
     deleteFunc: {
-        type: Function,
-    }
-  },
-  data() {
-    return {
-      isContentCollapsed: true,
-      contentLimit: 10,
-    };
-  },
-  computed: {
-    isContentOverflow() {
-      return this.post.content.content.length > this.contentLimit;
+      type: Function,
     },
   },
-  methods: {
-    toggleCollapse() {
-      this.isContentCollapsed = !this.isContentCollapsed;
-    },
-  },
-  setup() {
-    const router = useRouter()
+  setup(props) {
+    const router = useRouter();
 
     const expand = (post, visit, showLevel, getFunc, deleteFunc) => {
-        Expand(post, visit, showLevel, getFunc, deleteFunc)
-    }
+      post = Expand(post, visit, showLevel, getFunc, deleteFunc);
+    };
     const onClick = (post) => {
-        if (post.showLevel == ShowLevel['title'])
-            router.push({path: "", query: {id: post.id}})
-    }
+      if (typeof post === "number")
+        router.push({ path: "", query: { id: post } });
+      else if (post.showLevel >= ShowLevel["title"])
+        router.push({ path: "", query: { id: post.id } });
+    };
+    const subscribe = (id) => {
+      console.log("subscribe", id);
+    };
+
+    const title = ref("");
+    const content = ref("");
+    const authors = ref("");
+    const showLevel = ref(0);
+    const like = ref(0);
+    const star = ref(0);
+    const comment = ref(0);
+    const getData = (post) => {
+      title.value = post.content.title;
+      authors.value = []
+      for (let i = 0; i < post.author.length; i++) {
+        authors.value.push(Object({
+          id: post.author[i],
+          title: props.getFunc(post.author[i]).content.title
+        }));
+      }
+      content.value = post.content.content;
+      showLevel.value = post.showLevel;
+      like.value = 0;
+      star.value = 0;
+      comment.value = 0;
+    };
+    getData(props.post);
+
+    const showMore = () => {
+      expand(
+        props.post,
+        props.visit,
+        ShowLevel["full"],
+        props.getFunc,
+        props.deleteFunc
+      );
+      getData(props.post);
+    };
+
+    const showLess = () => {
+      expand(
+        props.post,
+        props.visit,
+        ShowLevel["zip"],
+        props.getFunc,
+        props.deleteFunc
+      );
+      getData(props.post);
+    };
+
+    const clickLike = () => {
+      console.log("like", 0);
+    };
+    const clickStar = () => {
+      console.log("star", 0);
+    };
+
     return {
-        expand,
-        onClick,
+      title,
+      authors,
+      content,
+      showLevel,
+      ShowLevel,
+      like,
+      star,
+      comment,
+      expand,
+      onClick,
+      subscribe,
+      showMore,
+      showLess,
+      clickLike,
+      clickStar,
     };
   },
 };
