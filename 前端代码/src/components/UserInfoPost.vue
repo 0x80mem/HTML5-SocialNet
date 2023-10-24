@@ -7,8 +7,13 @@
                 </div>
             </div>
         </div>
-      {{ post.id }} {{ parNode.id }} {{ post.showLevel }}    {{ post.type }} 
-      <post-content :content="post.content" :showLevel="post.showLevel" :type="post.type"></post-content>
+        <div v-if="post.type=='user'"><van-icon name="friends-o" /> 
+  
+  <post-content :content="post.content" :showLevel="post.showLevel" :type="post.type"></post-content>
+ </div>
+       
+    
+      
         <div v-if="post.chiPost.length && typeof(post.chiPost[0]) == 'object'">
             <div v-for="sub in post.chiPost" :key="sub.id" :sub="sub">
                 <div v-if="key != parNode.id">
@@ -45,6 +50,7 @@ import RecNode from './RecNode.vue';
 import Expand from '@/scripts/Expand';
 import ShowLevel from '@/scripts/ShowLevel';
 import {Icon, Cell, CellGroup } from 'vant';
+
 const app = createApp();
 app.use(PostContent);
 app.use(RecNode);
@@ -57,6 +63,7 @@ export default {
   components: {
     PostContent,
     RecNode,
+
   },
   props: {
     post: {

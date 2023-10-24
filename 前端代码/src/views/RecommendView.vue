@@ -9,20 +9,34 @@
          <post-tree :id="item" showLevel="zip"></post-tree>
         </li>
 
+        </div>
+        <tool-basket>
+            <home-tool></home-tool>
+        </tool-basket>
+
+    <van-popup
+      v-model:show="showLeft"
+      position="left"
+      :style="{ width: '50%', height: '100%' }"
+    >
+    <UserView />
+    </van-popup>
     </div>
     <tool-basket>
         <home-tool></home-tool>
     </tool-basket>
 
-<van-popup
-  v-model:show="showLeft"
-  position="left"
-  :style="{ width: '50%', height: '100%' }"
->
-<UserView />
-</van-popup>
-</div>
-  </template>
+    <script>
+    import store from '../store';
+    import { createApp, ref } from 'vue';
+    import { ActionBar, ActionBarIcon, ActionBarButton, Popup } from 'vant';
+    import { mapState } from 'vuex';
+    import UserView from './UserView.vue'
+    import NavBar from '@/components/AppNav.vue';
+    import ToolBasket from '@/components/ToolBasket.vue';
+    import HomeTool from '@/components/HomeTool.vue';
+    import { Button } from 'vant';
+    import PostTree from '@/components/PostTree.vue';
 
 <style lang="less">
     li {
@@ -42,11 +56,15 @@ import HomeTool from '@/components/HomeTool.vue';
 import { Button } from 'vant';
 import PostTree from '@/components/PostTree.vue';
 
-const app = createApp();
-app.use(ActionBar);
-app.use(ActionBarIcon);
-app.use(ActionBarButton);
-app.use(Popup);
+    export default{
+        store,
+        components: {
+            UserView,
+            NavBar,
+            ToolBasket,
+            HomeTool,
+            PostTree,
+            [Button.name]: Button,
 
 export default{
     store,
@@ -82,4 +100,4 @@ export default{
   },
 }
 
-</script>
+    </script>
