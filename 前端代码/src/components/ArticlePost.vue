@@ -1,5 +1,5 @@
 <template>
-  <div class="post-container">
+  <div class="post-container" :id="'art_' + post.id">
     <div class="post-content">
       <div
         class="title"
@@ -78,6 +78,10 @@
 
 .content {
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: none;
 }
 
 .content div {
@@ -198,6 +202,7 @@ export default {
     getData(props.post);
 
     const showMore = () => {
+      const prevScrollY = window.scrollY;
       expand(
         props.post,
         props.visit,
@@ -206,6 +211,9 @@ export default {
         props.deleteFunc
       );
       getData(props.post);
+      requestAnimationFrame(function() {
+        window.scrollTo({ top: prevScrollY, behavior: 'instant' });
+      });
     };
 
     const showLess = () => {

@@ -1,6 +1,8 @@
 <template>
     <div>
-      <van-button @click="goHome" icon="home-o"></van-button>
+      <van-button @click="goHome" icon="home-o"
+      style="width: 30px; height: 30px;"
+      ></van-button>
     </div>
 </template>
   
