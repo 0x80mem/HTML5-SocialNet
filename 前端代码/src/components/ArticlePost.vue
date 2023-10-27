@@ -3,6 +3,7 @@
     <div class="post-content">
       <div
         class="title"
+        tips="标题"
         @click="onClick(post)"
         v-if="showLevel >= ShowLevel['title']"
       >
@@ -10,36 +11,37 @@
       </div>
       <div
         class="author"
+        tips="作者"
         v-if="showLevel >= ShowLevel['author']"
       >
         <div v-for="author in authors" :key="author.id">
           <div class="authors">
             <div @click="onClick(author.id)"> {{ author.title }} </div>
-            <van-icon name="plus" @click="subscribe(author.id)" />
+            <van-icon name="plus" tips="关注" @click="subscribe(author.id)" />
           </div>
         </div>
       </div>
       <div class="content" v-if="showLevel >= ShowLevel['zip']">
         <div v-if="showLevel == ShowLevel['zip']">
-          <div class="show-less" @click="showMore()">
+          <div class="show-less" tips="缩略内容" @click="showMore()">
             {{ content }}
           </div>
           <div class="options">
-            <div class="like"> <van-icon name="like" /><span>{{ like }}</span></div>
-            <div class="comment"> <van-icon name="comment" /><span>{{ comment }}</span></div>
-            <div class="collect"> <van-icon name="star" /><span>{{ star }}</span> </div>
-            <div class="expand"> <van-icon name="arrow-down" @click="showMore()"/> </div>
+            <div class="like" tips="点赞"> <van-icon name="like" /><span>{{ like }}</span></div>
+            <div class="comment" tips="评论"> <van-icon name="comment" /><span>{{ comment }}</span></div>
+            <div class="collect" tips="收藏"> <van-icon name="star" /><span>{{ star }}</span> </div>
+            <div class="expand" tips="展开"> <van-icon name="arrow-down" @click="showMore()"/> </div>
           </div>
         </div>
         <div v-else-if="showLevel >= ShowLevel['full']">
-          <div class="show-more">
+          <div class="show-more" tips="内容">
             {{ content }}
           </div>
           <div class="options">
-            <div class="like"> <van-icon name="like" @click="clickLike()"/><span>{{ like }}</span></div>
-            <div class="comment"> <van-icon name="comment" /><span>{{ comment }}</span></div>
-            <div class="collect"> <van-icon name="star" @click="clickStar()"/><span>{{ star }}</span> </div> 
-            <div class="expand"> <van-icon name="arrow-up" @click="showLess()" /> </div>
+            <div class="like" tips="点赞"> <van-icon name="like" @click="clickLike()"/><span>{{ like }}</span></div>
+            <div class="comment" tips="点赞"> <van-icon name="comment" /><span>{{ comment }}</span></div>
+            <div class="collect" tips="点赞"> <van-icon name="star" @click="clickStar()"/><span>{{ star }}</span> </div> 
+            <div class="expand" tips="点赞"> <van-icon name="arrow-up" @click="showLess()" /> </div>
           </div>
         </div>
       </div>
