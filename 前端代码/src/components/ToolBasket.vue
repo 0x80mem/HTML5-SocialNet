@@ -1,14 +1,14 @@
 <template>
   <div class="container">
+    <div class="basket-content" v-if="showContent">
+      <slot v-if="showContent"></slot>
+    </div>
     <van-button
       class="basket-tools"
       type="primary"
       icon="arrow-up"
       @click="showContent = !showContent;"
     ></van-button>
-    <div class="basket-content" v-if="showContent">
-      <slot v-if="showContent"></slot>
-    </div>
   </div>
   <div class="alter">
     <van-button
@@ -24,7 +24,7 @@
 .container,
 .alter {
   display: flex;
-  flex-direction: column-reverse;
+  flex-direction: column;
   align-items: center;
   position: fixed;
   bottom: 20px;
@@ -41,7 +41,7 @@
 
 .basket-content {
   display: flex;
-  flex-direction: column;
+  flex-direction: column-reverse;
   align-items: center;
   max-width: none;
   gap: 10px;
