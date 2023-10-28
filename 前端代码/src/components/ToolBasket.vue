@@ -7,6 +7,7 @@
       class="basket-tools"
       type="primary"
       icon="arrow-up"
+      style="z-index: 201;"
       @click="showContent = !showContent;"
     ></van-button>
   </div>
@@ -15,6 +16,7 @@
       class="basket-tools"
       type="primary"
       icon="exchange"
+      style="z-index: 201;"
       @click="swapElements()"
     ></van-button>
   </div>
@@ -27,16 +29,16 @@
   flex-direction: column;
   align-items: center;
   position: fixed;
-  bottom: 20px;
+  bottom: 10px;
 }
 
 .container
 {
-  right: 20px;
+  right: 10px;
 }
 
 .alter {
-  left: 20px;
+  left: 10px;
 }
 
 .basket-content {

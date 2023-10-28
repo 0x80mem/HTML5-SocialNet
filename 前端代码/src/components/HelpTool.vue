@@ -1,24 +1,24 @@
 <template>
   <div>
     <van-button
-      @click="showIcon = !showIcon"
+      @click="clickHelp()"
       icon="question-o"
-      style="width: 30px; height: 30px; z-index: 200"
+      :style="{ width: '30px', height: '30px', zIndex: buttonZIndex }"
     ></van-button>
     <div
-      v-if="showIcon"
-      class="mask"
+      v-if="showHelp"
+      class="help-mask"
       @click="maskClick"
       @touchmove="onMaskTouchMove"
     ></div>
   </div>
-<van-notify v-model:show="show" type="primary">
-  <span>{{tips}}</span>
-</van-notify>
+  <van-notify v-model:show="show" type="primary">
+    <span>{{ tips }}</span>
+  </van-notify>
 </template>
   
 <style>
-.mask {
+.help-mask {
   position: fixed;
   top: 0;
   left: 0;
@@ -30,22 +30,34 @@
 </style>
   
 <script>
-import { Button, Icon, showNotify } from "vant";
+import { Button, Icon, showNotify, Notify } from "vant";
 import { ref } from "vue";
 
 export default {
   components: {
     [Button.name]: Button,
     [Icon.name]: Icon,
+    [Notify.name]: Notify,
   },
   setup() {
-    const showIcon = ref(false);
-    const showTips = ref(false)
-    const tips = ref('')
+    const showHelp = ref(false);
+    const buttonZIndex = ref(1);
+    const tips = ref("");
+
+    const clickHelp = () => {
+      showHelp.value = !showHelp.value;
+      if (showHelp.value) {
+        tips.value = "点击页面元素查看帮助";
+        buttonZIndex.value = 200;
+        showNotify({
+          type: "primary",
+          message: tips,
+        });
+      } else buttonZIndex.value = 1;
+    };
 
     const maskClick = (event) => {
-      if (showIcon.value) {
-        showTips.value = true;
+      if (showHelp.value) {
         const x = event.clientX;
         const y = event.clientY;
         const elements = document.elementsFromPoint(x, y); // 获取指定位置下的所有元素
@@ -56,7 +68,6 @@ export default {
           );
           if (zIndex != 100) {
             targetElement = element;
-            console.log(zIndex);
             break;
           }
         }
@@ -80,8 +91,10 @@ export default {
     };
 
     return {
-      showIcon,
+      showHelp,
+      buttonZIndex,
       tips,
+      clickHelp,
       maskClick,
       onMaskTouchMove,
     };

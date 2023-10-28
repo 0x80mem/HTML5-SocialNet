@@ -1,5 +1,5 @@
 <template>
-  <div class="post-container" :id="'art_' + post.id">
+  <div class="post-container" :id="'art_' + post.id" :action-id="JSON.stringify({id:post.id, type:'article', name:title})">
     <div class="post-content">
       <div
         class="title"
@@ -16,7 +16,10 @@
       >
         <div v-for="author in authors" :key="author.id">
           <div class="authors">
-            <div @click="onClick(author.id)"> {{ author.title }} </div>
+            <div @click="onClick(author.id)"
+                 :action-id="JSON.stringify({id:author.id, type:'author', name:author.title})"> 
+               {{ author.title }} 
+            </div>
             <van-icon name="plus" tips="关注" @click="subscribe(author.id)" />
           </div>
         </div>
