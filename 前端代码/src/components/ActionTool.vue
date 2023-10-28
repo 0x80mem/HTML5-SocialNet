@@ -31,7 +31,8 @@
         <van-action-bar-icon icon="star" tips="收藏" text="收藏"></van-action-bar-icon>
         <van-action-bar-icon icon="share" tips="转发" text="转发"></van-action-bar-icon>
     </van-action-bar>
-    <van-notify v-model:show="show" type="primary">
+    <van-notify v-model:show="show" type="primary"
+      v-if="showAction && navTitle != ''">
         <span>{{ navTitle }}</span>
     </van-notify>
     </div>
@@ -50,7 +51,7 @@
 </style>
     
   <script>
-import { Button, Icon, ActionBar, showNotify, Notify } from "vant";
+import { Button, Icon, ActionBar, showNotify, closeNotify, Notify } from "vant";
 import { ref } from "vue";
 
 export default {
@@ -74,7 +75,12 @@ export default {
           message: navTitle,
           duration: 0,
         });
-      } else buttonZIndex.value = 1;
+      } else
+      {
+        buttonZIndex.value = 1;
+        navTitle.value = "";
+        closeNotify();
+      }
     };
 
     const maskClick = (event) => {
