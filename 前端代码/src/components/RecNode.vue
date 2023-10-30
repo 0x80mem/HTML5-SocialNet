@@ -12,6 +12,9 @@
       <div v-else-if="post.type == 'fans'">
         <Fans-post :post="post" :parNode="parNode" :visit="visit" :getFunc="getFunc" :deleteFunc="deleteFunc"></Fans-post>
       </div>
+      <div v-else-if="post.type == 'like'">
+      
+      </div>
       <div v-else>
         <default-post :post="post" :parNode="parNode" :visit="visit" :getFunc="getFunc" :deleteFunc="deleteFunc"></default-post>
       </div>
@@ -26,10 +29,12 @@ import ArticlePost from './ArticlePost.vue';
 import UserInfoPost from './UserInfoPost.vue';
 import SubscribePost  from './SubscribePost.vue';
 import FansPost  from './FansPost.vue';
+
 const app = createApp();
 app.use(DefaultPost);
 app.use(SubscribePost);
 app.use(FansPost);
+
 export default {
 store,
 name: 'RecNode',
@@ -39,6 +44,7 @@ components: {
   UserInfoPost,
   SubscribePost,
   FansPost,
+ 
 },
 props: {
   post: {
