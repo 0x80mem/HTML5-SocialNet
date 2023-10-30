@@ -1,9 +1,11 @@
 <template>
-  
-    
-  <div class="post-container" :id="'art_' + post.id" :action-id="JSON.stringify({id:post.id, type:'article', name:title})">
+  <div
+    class="post-container"
+    :id="'art_' + post.id"
+    :action-id="JSON.stringify({ id: post.id, type: 'article', name: title })"
+    :more-info="JSON.stringify({ id: post.id, type: 'article', name: title })"
+  >
     <div class="post-content">
-
       <div
         class="title"
         tips="标题"
@@ -12,23 +14,25 @@
       >
         {{ title }}
       </div>
-      <div
-        class="author"
-        tips="作者"
-        v-if="showLevel >= ShowLevel['author']"
-      >
+      <div class="author" tips="作者" v-if="showLevel >= ShowLevel['author']">
         <div v-for="author in authors" :key="author.id">
           <div class="authors">
-            <div @click="onClick(author.id)"
-                 :action-id="JSON.stringify({id:author.id, type:'author', name:author.title})"> 
-               {{ author.title }} 
+            <div
+              @click="onClick(author.id)"
+              :action-id="
+                JSON.stringify({
+                  id: author.id,
+                  type: 'author',
+                  name: author.title,
+                })
+              "
+            >
+              {{ author.title }}
             </div>
             <van-icon name="plus" tips="关注" @click="subscribe(author.id)" />
           </div>
         </div>
       </div>
-
-  
 
       <div class="content" v-if="showLevel >= ShowLevel['zip']">
         <div v-if="showLevel == ShowLevel['zip']">
@@ -36,10 +40,20 @@
             {{ content }}
           </div>
           <div class="options">
-            <div class="like" tips="点赞"> <van-icon name="like"  :color="col" @click="clickLike()"/><span>{{ like1 }}</span></div>
-            <div class="comment" tips="评论"> <van-icon name="comment" /><span>{{ comment }}</span></div>
-            <div class="collect" tips="收藏"> <van-icon name="star" /><span>{{ star }}</span> </div>
-            <div class="expand" tips="展开"> <van-icon name="arrow-down" @click="showMore()"/> </div>
+            <div class="like" tips="点赞">
+              <van-icon name="like" :color="col" @click="clickLike()" /><span>{{
+                like1
+              }}</span>
+            </div>
+            <div class="comment" tips="评论">
+              <van-icon name="comment" /><span>{{ comment }}</span>
+            </div>
+            <div class="collect" tips="收藏">
+              <van-icon name="star" /><span>{{ star }}</span>
+            </div>
+            <div class="expand" tips="展开">
+              <van-icon name="arrow-down" @click="showMore()" />
+            </div>
           </div>
         </div>
         <div v-else-if="showLevel >= ShowLevel['full']">
@@ -47,11 +61,21 @@
             {{ content }}
           </div>
           <div class="options">
-            <div class="like" tips="点赞"> <van-icon name="like" :color="col" @click="clickLike()"/>
-              {{like1}}</div>
-            <div class="comment" tips="点赞"> <van-icon name="comment" /><span>{{ comment }}</span></div>
-            <div class="collect" tips="点赞"> <van-icon name="star" @click="clickStar()"/><span>{{ star }}</span> </div> 
-            <div class="expand" tips="点赞"> <van-icon name="arrow-up" @click="showLess()" /> </div>
+            <div class="like" tips="点赞">
+              <van-icon name="like" :color="col" @click="clickLike()" />
+              {{ like1 }}
+            </div>
+            <div class="comment" tips="点赞">
+              <van-icon name="comment" /><span>{{ comment }}</span>
+            </div>
+            <div class="collect" tips="点赞">
+              <van-icon name="star" @click="clickStar()" /><span>{{
+                star
+              }}</span>
+            </div>
+            <div class="expand" tips="点赞">
+              <van-icon name="arrow-up" @click="showLess()" />
+            </div>
           </div>
         </div>
       </div>
@@ -126,7 +150,7 @@
   width: 4em;
 }
 
-.options div span{
+.options div span {
   margin-left: 5px;
 }
 
@@ -174,8 +198,8 @@ export default {
   },
   setup(props) {
     const router = useRouter();
-// 未点击时默认蓝色
-   let col= ref("#1989fa")
+    // 未点击时默认蓝色
+    let col = ref("#1989fa");
     const expand = (post, visit, showLevel, getFunc, deleteFunc) => {
       post = Expand(post, visit, showLevel, getFunc, deleteFunc);
     };
@@ -193,19 +217,21 @@ export default {
     const content = ref("");
     const authors = ref("");
     const showLevel = ref(0);
-   const like1=ref(0);
+    const like1 = ref(0);
     const star = ref(0);
     const comment = ref(0);
     const clikelike1 = ref(0);
     clikelike1.value = 0;
     const getData = (post) => {
       title.value = post.content.title;
-      authors.value = []
+      authors.value = [];
       for (let i = 0; i < post.author.length; i++) {
-        authors.value.push(Object({
-          id: post.author[i],
-          title: props.getFunc(post.author[i]).content.title
-        }));
+        authors.value.push(
+          Object({
+            id: post.author[i],
+            title: props.getFunc(post.author[i]).content.title,
+          })
+        );
       }
       content.value = post.content.content;
       showLevel.value = post.showLevel;
@@ -213,18 +239,16 @@ export default {
       comment.value = 0;
     };
     getData(props.post);
-    const getlike=(post)=> {
+    const getlike = (post) => {
       for (let i = 0; i < post.chiPost.length; i++) {
-       console.log(props.getFunc(post.chiPost[i]).type);
-          if( props.getFunc(post.chiPost[i]).type=='like'){
-            console.log("我已成功");
-                   like1.value=props.getFunc(post.chiPost[i]).content.title
-          }
-
+        console.log(props.getFunc(post.chiPost[i]).type);
+        if (props.getFunc(post.chiPost[i]).type == "like") {
+          console.log("我已成功");
+          like1.value = props.getFunc(post.chiPost[i]).content.title;
         }
-      };
-      getlike(props.post);
-
+      }
+    };
+    getlike(props.post);
 
     const showMore = () => {
       const prevScrollY = window.scrollY;
@@ -236,8 +260,8 @@ export default {
         props.deleteFunc
       );
       getData(props.post);
-      requestAnimationFrame(function() {
-        window.scrollTo({ top: prevScrollY, behavior: 'instant' });
+      requestAnimationFrame(function () {
+        window.scrollTo({ top: prevScrollY, behavior: "instant" });
       });
     };
 
@@ -258,22 +282,35 @@ export default {
     let likeNode = "1277472323"; // 你的 likeNode 值
     let userId = "348228825"; // 用户的 ID
     const clickLike = () => {
-      console.log("点击事件生效了")
-  if(clikelike1.value==0){console.log(String(postId));
-  store.commit("like",{postId:postId,collected:collected,liked:liked,collectNode:collectNode,likeNode:likeNode,userId:userId})
- 
-   col.value="red";
-   clikelike1.value++;
-   like1.value++;
-   return;
-  }
-  if(clikelike1.value==1){console.log(String(postId));
-   store.commit("cancelLike",{postId:1816142823,liked:216498386,likeNode:913137261})
-   col.value="blue";
-   clikelike1.value--;
-   like1.value--;
-   return;
-  }
+      console.log("点击事件生效了");
+      if (clikelike1.value == 0) {
+        console.log(String(postId));
+        store.commit("like", {
+          postId: postId,
+          collected: collected,
+          liked: liked,
+          collectNode: collectNode,
+          likeNode: likeNode,
+          userId: userId,
+        });
+
+        col.value = "red";
+        clikelike1.value++;
+        like1.value++;
+        return;
+      }
+      if (clikelike1.value == 1) {
+        console.log(String(postId));
+        store.commit("cancelLike", {
+          postId: 1816142823,
+          liked: 216498386,
+          likeNode: 913137261,
+        });
+        col.value = "blue";
+        clikelike1.value--;
+        like1.value--;
+        return;
+      }
     };
     const clickStar = () => {
       console.log("star", 0);
