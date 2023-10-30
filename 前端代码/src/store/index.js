@@ -2,11 +2,20 @@ import axios from 'axios'
 import { createStore } from 'vuex'
 import { dlogin, dgetPostList } from './debug_interface'
 
-var api = axios.create({
-  baseURL:'http://8.134.166.163/api',
-  timeout:1000
-})
+
+var api=axios.create({ 
+  baseURL:'http://47.93.10.201/api', 
+  timeout:1000,
+   })
+var apiFm=axios.create({ 
+  baseURL:'http://47.93.10.201/api', 
+  timeout:1000,
+    headers: {
+          'Content-Type': 'multipart/form-data'
+   }
+  })
 export default createStore({
+  namespaced: true,
   state: {
     userInfo: {
       id: 0,
@@ -30,7 +39,7 @@ export default createStore({
       }
       console.log(username)
       console.log(password)
-      api.post("/user/login", {name: username, password: password}).then(res => {
+      apiFm.post("/user/login", {name: username, password: password}).then(res => {
         state.userInfo.id = res;
         state.userInfo.isLogin = true;
         state.userInfo.username = username;
@@ -40,15 +49,14 @@ export default createStore({
       })
     },
     logout(){
-      api.get("/user/logout").then(res => {
-  
+      apiFm.get("/user/logout").then(res => {
         console.log(res);
       }).catch(res=>{
         console.log(res);
       })
     },
     register(state,[username,password]){
-      api.post('/user/register',{name:username,password:password}).then(res=>{
+      apiFm.post('/user/register',{name:username,password:password}).then(res=>{
         console.log(username);
         console.log(res)
         state.userInfo;
@@ -57,42 +65,42 @@ export default createStore({
       })
     },
     accurateQueryByName([name]){
-      api.post('/user/accurateQueryByName', {name:name}).then(res=>{
+      apiFm.post('/user/accurateQueryByName', {name:name}).then(res=>{
         console.log(res);
       }).catch(res => {
         console.log(res);
       })
     },
     fuzzyQueryByName([name]){
-      api.post('/user/fuzzyQueryByName', {name:name}).then(res=>{
+      apiFm.post('/user/fuzzyQueryByName', {name:name}).then(res=>{
         console.log(res);
       }).catch(res => {
         console.log(res);
       })
     },
     queryByID([id]){
-      api.post('/user/queryByID', {id:id}).then(res=>{
+      apiFm.post('/user/queryByID', {id:id}).then(res=>{
         console.log(res);
       }).catch(res => {
         console.log(res);
       })
     },
     setName([name]){
-      api.patch('/user/setName', {name:name}).then(res=>{
+      apiFm.patch('/user/setName', {name:name}).then(res=>{
         console.log(res);
       }).catch(res => {
         console.log(res);
       })
     },
     setPassword([password]){
-      api.patch('/user/setPassword', {password:password}).then(res=>{
+      apiFm.patch('/user/setPassword', {password:password}).then(res=>{
         console.log(res);
       }).catch(res => {
         console.log(res);
       })
     },
     cancel(){
-      api.delete('/user/setPassword').then(res=>{
+      apiFm.delete('/user/setPassword').then(res=>{
         console.log(res);
       }).catch(res => {
         console.log(res);
@@ -106,7 +114,7 @@ export default createStore({
         console.log("getPostList", state.postList)
         return;
       }
-      api.get('/post/queryPageOrderByTime', {
+      apiFm.get('/post/queryPageOrderByTime', {
         params:{
           startNum: 0,
           pageSize: 99999
@@ -120,7 +128,7 @@ export default createStore({
     },
     post(state, content,title)
     {
-      api.post('/post/post', {
+      apiFm.post('/post/post', {
         content:{
           title,
           content
@@ -134,7 +142,7 @@ export default createStore({
     },
     share([postId,shared,shareNode,userId])
     {
-      api.post('/rel/post', {postId: postId,shared:shared,shareNode:shareNode,userId:userId}).then(res=>{
+      apiFm.post('/rel/post', {postId: postId,shared:shared,shareNode:shareNode,userId:userId}).then(res=>{
         console.log(res);
       }).catch(err => {
         console.log(err);
@@ -142,7 +150,7 @@ export default createStore({
     },
     queryByContent(state,[content])
     {
-      api.get('/post/queryByContent', {
+      apiFm.get('/post/queryByContent', {
         params:{
           content: content
         }
@@ -155,7 +163,7 @@ export default createStore({
     },
     queryByAuthor(state,[userId])
     {
-      api.get('/post/queryByAuthor', {
+      apiFm.get('/post/queryByAuthor', {
         params:{
           userId:userId
         }
@@ -168,7 +176,7 @@ export default createStore({
     },
     queryPageOrderByTime(state,[startNum,pageSize])
     {
-      api.get('/post/queryPageOrderByTime',{
+      apiFm.get('/post/queryPageOrderByTime',{
         params:{
           startNum:startNum,
           pageSize:pageSize
@@ -182,7 +190,7 @@ export default createStore({
     },
     delete_post([id])
     {
-      api.delete('/post/ delete', {
+      apiFm.delete('/post/ delete', {
         params:{
           id: id
         }
@@ -193,20 +201,30 @@ export default createStore({
       })
     },
     collect([postId,collected,collectNode,userId]){
-      api.post('/rel/collect',{postId:postId,collected:collected,collectNode:collectNode,userId:userId}).then(res=>{
+      apiFm.post('/rel/collect',{postId:postId,collected:collected,collectNode:collectNode,userId:userId}).then(res=>{
         console.log(res);
       }).catch(err=>{
         console.log(err);
       })
     },
-    like([postId,collected,collectNode,liked,likeNode,userId]){
-      api.post('/rel/like',
-      {postId:postId,collected:collected,collectNode:collectNode,liked:liked,likeNode:likeNode,userId:userId}).then(res=>{
-        console.log(res);
-      }).catch(err=>{
-        console.log(err);
-      })
-    },
+  like(state,info){ 
+      console.log(info)
+   apiFm.post('/rel/like', {
+                
+                postId:info.postId,
+                collected:info.collected,
+                collectNode:info.collectNode,
+                liked:info.liked,
+                likeNode:info.likeNode,
+                userId:info.userId
+                
+        }
+).then(res=>{ 
+console.log(res); 
+}).catch(err=>{ 
+console.log(err); 
+}) 
+},
     cancelCollect([postId,collectNode]){
       api.delete('/rel/cancelCollect',{
         params:{
@@ -219,21 +237,22 @@ export default createStore({
         console.log(err);
       })
     },
-    cancelLike([postId,liked,likeNode]){
-      api.delete('/rel/cancelLike',{
-        params:{
-          postId:postId,
-          liked:liked,
-          likeNode
-        }
-      }).then(res=>{
-        console.log(res);
-      }).catch(err=>{
-        console.log(err);
-      })
-    },
+    cancelLike(state,info){ 
+    apiFm.delete('/rel/cancelLike',
+              {data:{
+          postId:info.postId, 
+          liked:info.liked, 
+        likeNode:info.likeNode 
+                    }
+              }
+    ).then(res=>{ 
+      console.log(res); 
+     }).catch(err=>{ 
+     console.log(err); 
+     }) 
+     },
     cancelShare([postId,shared,shareNode]){
-      api.delete('/rel/cancelShare',{
+      apiFm.delete('/rel/cancelShare',{
         params:{
           postId:postId,
           shared:shared,
@@ -246,7 +265,7 @@ export default createStore({
       })
     },
     createNode([id,type,title,content]){
-      api.post('/node/createNode',{
+      apiFm.post('/node/createNode',{
           id:id,  
           type:type,
           content:{
@@ -261,7 +280,7 @@ export default createStore({
 
     },
     removeNode([parId,nodeId]){
-      api.delete('/node/removeNode',{
+      apiFm.delete('/node/removeNode',{
         params:{
           parId:parId,
           nodeId:nodeId
@@ -273,7 +292,7 @@ export default createStore({
       })
     },
     updateContent([id,content,title]){
-      api.post('/node/updateContent',{
+      apiFm.post('/node/updateContent',{
         id:id,
         content:{
           title,
@@ -286,7 +305,7 @@ export default createStore({
       })
     },
     getContent([id]){
-      api.get('/node/getContent',{
+      apiFm.get('/node/getContent',{
         params:{
           id:id
         }
