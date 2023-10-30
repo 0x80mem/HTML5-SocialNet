@@ -1,6 +1,9 @@
 <template>
+  
+    
   <div class="post-container" :id="'art_' + post.id" :action-id="JSON.stringify({id:post.id, type:'article', name:title})">
     <div class="post-content">
+
       <div
         class="title"
         tips="标题"
@@ -24,13 +27,16 @@
           </div>
         </div>
       </div>
+
+  
+
       <div class="content" v-if="showLevel >= ShowLevel['zip']">
         <div v-if="showLevel == ShowLevel['zip']">
           <div class="show-less" tips="缩略内容" @click="showMore()">
             {{ content }}
           </div>
           <div class="options">
-            <div class="like" tips="点赞"> <van-icon name="like" /><span>{{ like }}</span></div>
+            <div class="like" tips="点赞"> <van-icon name="like"  :color="col" @click="clickLike()"/><span>{{ like1 }}</span></div>
             <div class="comment" tips="评论"> <van-icon name="comment" /><span>{{ comment }}</span></div>
             <div class="collect" tips="收藏"> <van-icon name="star" /><span>{{ star }}</span> </div>
             <div class="expand" tips="展开"> <van-icon name="arrow-down" @click="showMore()"/> </div>
@@ -41,7 +47,8 @@
             {{ content }}
           </div>
           <div class="options">
-            <div class="like" tips="点赞"> <van-icon name="like" @click="clickLike()"/><span>{{ like }}</span></div>
+            <div class="like" tips="点赞"> <van-icon name="like" :color="col" @click="clickLike()"/>
+              {{like1}}</div>
             <div class="comment" tips="点赞"> <van-icon name="comment" /><span>{{ comment }}</span></div>
             <div class="collect" tips="点赞"> <van-icon name="star" @click="clickStar()"/><span>{{ star }}</span> </div> 
             <div class="expand" tips="点赞"> <van-icon name="arrow-up" @click="showLess()" /> </div>
@@ -133,7 +140,6 @@
 <script>
 import { createApp, ref } from "vue";
 import { useRouter } from "vue-router";
-
 import store from "../store";
 import RecNode from "./RecNode.vue";
 import Expand from "@/scripts/Expand";
@@ -168,7 +174,8 @@ export default {
   },
   setup(props) {
     const router = useRouter();
-
+// 未点击时默认蓝色
+   let col= ref("#1989fa")
     const expand = (post, visit, showLevel, getFunc, deleteFunc) => {
       post = Expand(post, visit, showLevel, getFunc, deleteFunc);
     };
@@ -186,9 +193,11 @@ export default {
     const content = ref("");
     const authors = ref("");
     const showLevel = ref(0);
-    const like = ref(0);
+   const like1=ref(0);
     const star = ref(0);
     const comment = ref(0);
+    const clikelike1 = ref(0);
+    clikelike1.value = 0;
     const getData = (post) => {
       title.value = post.content.title;
       authors.value = []
@@ -200,11 +209,22 @@ export default {
       }
       content.value = post.content.content;
       showLevel.value = post.showLevel;
-      like.value = 0;
       star.value = 0;
       comment.value = 0;
     };
     getData(props.post);
+    const getlike=(post)=> {
+      for (let i = 0; i < post.chiPost.length; i++) {
+       console.log(props.getFunc(post.chiPost[i]).type);
+          if( props.getFunc(post.chiPost[i]).type=='like'){
+            console.log("我已成功");
+                   like1.value=props.getFunc(post.chiPost[i]).content.title
+          }
+
+        }
+      };
+      getlike(props.post);
+
 
     const showMore = () => {
       const prevScrollY = window.scrollY;
@@ -231,21 +251,42 @@ export default {
       );
       getData(props.post);
     };
-
+    let postId = "1816142823"; // 从组件的 props 或 data 中获取需要的数据
+    let collected = "216498386"; // 例如，假设帖子已经被收藏
+    let liked = "585358255"; // 例如，用户已经喜欢过帖子
+    let collectNode = "410142786"; // 你的 collectNode 值
+    let likeNode = "1277472323"; // 你的 likeNode 值
+    let userId = "348228825"; // 用户的 ID
     const clickLike = () => {
-      console.log("like", 0);
+      console.log("点击事件生效了")
+  if(clikelike1.value==0){console.log(String(postId));
+  store.commit("like",{postId:postId,collected:collected,liked:liked,collectNode:collectNode,likeNode:likeNode,userId:userId})
+ 
+   col.value="red";
+   clikelike1.value++;
+   like1.value++;
+   return;
+  }
+  if(clikelike1.value==1){console.log(String(postId));
+   store.commit("cancelLike",{postId:1816142823,liked:216498386,likeNode:913137261})
+   col.value="blue";
+   clikelike1.value--;
+   like1.value--;
+   return;
+  }
     };
     const clickStar = () => {
       console.log("star", 0);
     };
 
     return {
+      col,
       title,
       authors,
       content,
       showLevel,
       ShowLevel,
-      like,
+      like1,
       star,
       comment,
       expand,
