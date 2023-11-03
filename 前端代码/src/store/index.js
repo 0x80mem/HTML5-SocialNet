@@ -123,18 +123,7 @@ export default createStore({
 				console.log(res);
 			})
 		},
-		/**
-		 * 发帖
-		 *  postPayload:{
-						"node": {
-													 "content": {
-													 "title": "登高",
-													 "content": "渚青沙白鸟飞回"
-													 }
-									 }
-						}
-		 */
-		
+	  //发帖
 		post(state, postPayload) {
 			api.post('/post/post', postPayload
 			).then(res => {
@@ -157,12 +146,12 @@ export default createStore({
 			})
 		},
 		queryPostById(state,id){
-			api.get('/post/queryByAuthor', {
+			api.get('/post/queryPostById', {
 				params: {
-					userId: id
+					id: id
 				}
 			}).then(res => {
-				state.postList = res.data;
+				//state.postList = res.data;
 				console.log(res);
 			}).catch(err => {
 				console.log(err);
