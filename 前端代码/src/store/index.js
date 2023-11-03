@@ -157,13 +157,17 @@ export default createStore({
 			})
 		},
 		queryPostById(state,id){
-			api.get('/post/queryByAuthor', {
+			api.get('/post/queryPostById', {
 				params: {
-					userId: id
+					id: id
 				}
 			}).then(res => {
-				state.postList = res.data;
-				console.log(res);
+				//state.postList = res.data;
+				if(res.data.code=1)
+					return res.data.data;
+				else
+					return null;
+
 			}).catch(err => {
 				console.log(err);
 			})
