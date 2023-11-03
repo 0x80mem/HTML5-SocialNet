@@ -152,7 +152,11 @@ export default createStore({
 				}
 			}).then(res => {
 				//state.postList = res.data;
-				console.log(res);
+				if(res.data.code=1)
+					return res.data.data;
+				else
+					return null;
+
 			}).catch(err => {
 				console.log(err);
 			})
