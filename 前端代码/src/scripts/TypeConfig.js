@@ -6,7 +6,7 @@ const TypeConfig = {
         [ShowLevel['author'], ShowLevel['hide']],
         [ShowLevel['zip'], ShowLevel['hide']],
         [ShowLevel['full'], ShowLevel['title']],
-    ], 
+    ],
     [
         [ShowLevel['author'], ShowLevel['hide']],
         [ShowLevel['zip'],    ShowLevel['hide']],
@@ -17,7 +17,7 @@ const TypeConfig = {
         [ShowLevel['author'], ShowLevel['hide']],
         [ShowLevel['zip'], ShowLevel['hide']],
         [ShowLevel['full'], ShowLevel['title']],
-    ], 
+    ],
     [
         [ShowLevel['author'], ShowLevel['hide']],
         [ShowLevel['zip'],    ShowLevel['hide']],
@@ -40,7 +40,7 @@ const TypeConfig = {
     "user": new Types([
         [ShowLevel['zip'],    ShowLevel['title']],
         [ShowLevel['full'],   ShowLevel['title']],
-    ], 
+    ],
     [
         [ShowLevel['zip'],    ShowLevel['title']],
         [ShowLevel['full'],   ShowLevel['title']]
@@ -49,7 +49,7 @@ const TypeConfig = {
     "userInfo": new Types([
         [ShowLevel['zip'],    ShowLevel['title']],
         [ShowLevel['full'],   ShowLevel['title']],
-    ], 
+    ],
     [
         [ShowLevel['full'],   ShowLevel['full']]
     ]),
@@ -57,7 +57,15 @@ const TypeConfig = {
     "like": new Types([
         [ShowLevel['zip'],    ShowLevel['title']],
         [ShowLevel['full'],   ShowLevel['title']]
-    ], 
+    ],
+    [
+        [ShowLevel['zip'],    ShowLevel['title']],
+        [ShowLevel['full'],   ShowLevel['zip']]
+    ]),
+    "comment": new Types([
+        [ShowLevel['zip'],    ShowLevel['title']],
+        [ShowLevel['full'],   ShowLevel['title']]
+    ],
     [
         [ShowLevel['zip'],    ShowLevel['title']],
         [ShowLevel['full'],   ShowLevel['zip']]
@@ -66,7 +74,7 @@ const TypeConfig = {
     "subscribe": new Types([
         [ShowLevel['zip'],    ShowLevel['title']],
         [ShowLevel['full'],   ShowLevel['title']]
-    ], 
+    ],
     [
         [ShowLevel['zip'],    ShowLevel['title']],
         [ShowLevel['full'],   ShowLevel['title']]
@@ -75,7 +83,7 @@ const TypeConfig = {
     "fans": new Types([
         [ShowLevel['zip'],    ShowLevel['title']],
         [ShowLevel['full'],   ShowLevel['title']]
-    ], 
+    ],
     [
         [ShowLevel['zip'],    ShowLevel['title']],
         [ShowLevel['full'],   ShowLevel['title']]
@@ -84,7 +92,7 @@ const TypeConfig = {
     "collection": new Types([
         [ShowLevel['zip'],    ShowLevel['title']],
         [ShowLevel['full'],   ShowLevel['title']]
-    ], 
+    ],
     [
         [ShowLevel['zip'],    ShowLevel['zip']],
         [ShowLevel['full'],   ShowLevel['zip']]
@@ -94,7 +102,7 @@ const TypeConfig = {
     "liked": new Types([
         [ShowLevel['zip'],    ShowLevel['title']],
         [ShowLevel['full'],   ShowLevel['title']]
-    ], 
+    ],
     [
         [ShowLevel['zip'],    ShowLevel['title']],
         [ShowLevel['full'],   ShowLevel['title']]
@@ -103,7 +111,7 @@ const TypeConfig = {
     "collected": new Types([
         [ShowLevel['zip'],    ShowLevel['title']],
         [ShowLevel['full'],   ShowLevel['title']]
-    ], 
+    ],
     [
         [ShowLevel['zip'],    ShowLevel['title']],
         [ShowLevel['full'],   ShowLevel['title']]
@@ -112,7 +120,7 @@ const TypeConfig = {
     "forwarded": new Types([
         [ShowLevel['zip'],    ShowLevel['title']],
         [ShowLevel['full'],   ShowLevel['title']]
-    ], 
+    ],
     [
         [ShowLevel['zip'],    ShowLevel['title']],
         [ShowLevel['full'],   ShowLevel['title']]
