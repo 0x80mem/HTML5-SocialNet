@@ -41,13 +41,35 @@
           </div>
           <div class="options">
             <div class="like" tips="点赞">
-              <van-icon name="like" :color="col" @click="clickLike()" /><span>{{
+              <van-icon name="like" :color="col" @click="clickLike(post)" /><span>{{
                 like1
               }}</span>
             </div>
+
+
             <div class="comment" tips="评论">
-              <van-icon name="comment" /><span>{{ comment }}</span>
+              <van-icon name="comment" @click="clickcomment(post)" /><span>{{
+                comment1
+              }}</span>
+
+              <van-popup
+  v-model:show="show"
+  position="bottom"
+  :style="{ height: '90%' ,width:'100%' }"
+  closeable
+  @click-overlay="onClickOverlay"
+  @click-close-icon="onClickCloseIcon"> 
+
+   <div class="content" v-for="(author, index) in commentauthor" :key="index">
+      <p>作者: {{ author }}</p>
+      <p>内容: {{ commentcontent[index] }}</p>
+  </div>
+
+</van-popup>
+
             </div>
+            
+
             <div class="collect" tips="收藏">
               <van-icon name="star" /><span>{{ star }}</span>
             </div>
@@ -62,18 +84,19 @@
           </div>
           <div class="options">
             <div class="like" tips="点赞">
-              <van-icon name="like" :color="col" @click="clickLike()" />
+              <van-icon name="like" :color="col" @click="clickLike(post)" />
               {{ like1 }}
             </div>
-            <div class="comment" tips="点赞">
+            <div class="comment" tips="评论">
               <van-icon name="comment" /><span>{{ comment }}</span>
+              
             </div>
-            <div class="collect" tips="点赞">
+            <div class="collect" tips="展开">
               <van-icon name="star" @click="clickStar()" /><span>{{
                 star
               }}</span>
             </div>
-            <div class="expand" tips="点赞">
+            <div class="expand" tips="内容">
               <van-icon name="arrow-up" @click="showLess()" />
             </div>
           </div>
@@ -146,9 +169,7 @@
   margin-top: 10px;
 }
 
-.options div {
-  width: 4em;
-}
+
 
 .options div span {
   margin-left: 5px;
@@ -168,13 +189,15 @@ import store from "../store";
 import RecNode from "./RecNode.vue";
 import Expand from "@/scripts/Expand";
 import ShowLevel from "@/scripts/ShowLevel";
-import { Icon, Cell, CellGroup } from "vant";
+import { Icon, Cell, CellGroup,Popup,showToast } from "vant";
 const app = createApp();
 
 app.use(RecNode);
 app.use(Icon);
 app.use(Cell);
 app.use(CellGroup);
+app.use(Popup);
+app.use(showToast);
 export default {
   store,
   name: "DefaultPost",
@@ -197,6 +220,13 @@ export default {
     },
   },
   setup(props) {
+    const show = ref(false);
+    const onClickOverlay = () => {
+      showToast('click-overlay');
+    };
+    const onClickCloseIcon = () => {
+      showToast('click-close-icon');
+    };
     const router = useRouter();
     // 未点击时默认蓝色
     let col = ref("#1989fa");
@@ -217,12 +247,18 @@ export default {
     const content = ref("");
     const authors = ref("");
     const showLevel = ref(0);
-    const like1 = ref(0);
+    const like1 = ref(0);//点赞数量
     const star = ref(0);
     const comment = ref(0);
+    const comment1 = ref(0);//评论数量
     const clikelike1 = ref(0);
+    const clikecomment1 = ref(0);
+    const commentauthor=[];
+    const commentcontent=[];
+    clikecomment1.value=0;
     clikelike1.value = 0;
     const getData = (post) => {
+
       title.value = post.content.title;
       authors.value = [];
       for (let i = 0; i < post.author.length; i++) {
@@ -243,13 +279,23 @@ export default {
       for (let i = 0; i < post.chiPost.length; i++) {
         console.log(props.getFunc(post.chiPost[i]).type);
         if (props.getFunc(post.chiPost[i]).type == "like") {
-          console.log("我已成功");
+          console.log("我已成功找到点赞数");
           like1.value = props.getFunc(post.chiPost[i]).content.title;
         }
       }
     };
     getlike(props.post);
-
+    const getcommentnumber = (post) => {
+      comment1.value=0;
+      for (let i = 0; i < post.chiPost.length; i++) {
+        console.log(props.getFunc(post.chiPost[i]).type);
+        if (props.getFunc(post.chiPost[i]).type == "comment") {
+          console.log("我已成功找到评论数");
+          comment1.value++;
+        }
+      }
+    };
+    getcommentnumber(props.post)
     const showMore = () => {
       const prevScrollY = window.scrollY;
       expand(
@@ -275,13 +321,36 @@ export default {
       );
       getData(props.post);
     };
-    let postId = "1816142823"; // 从组件的 props 或 data 中获取需要的数据
+    const clickcomment = (post) => {
+   //获取评论数
+
+
+    
+   //获取评论
+    show.value = true;
+    console.log(clikecomment1.value);
+    if(clikecomment1.value==0){
+      for (let i = 0; i < post.chiPost.length; i++) {
+        console.log(props.getFunc(post.chiPost[i]).type);
+        if (props.getFunc(post.chiPost[i]).type == "comment") {
+          console.log("我又成功");
+        
+          commentauthor.push( props.getFunc(post.chiPost[i]).content.title);
+      
+          commentcontent.push(props.getFunc(post.chiPost[i]).content.content);
+          console.log(props.getFunc(post.chiPost[i]).content.content);
+        }
+      }
+    } 
+    if(clikecomment1.value==0)clikecomment1.value++; 
+      }
+    const clickLike = (post) => {
+      let postId = post.id; // 从组件的 props 或 data 中获取需要的数据
     let collected = "216498386"; // 例如，假设帖子已经被收藏
     let liked = "585358255"; // 例如，用户已经喜欢过帖子
     let collectNode = "410142786"; // 你的 collectNode 值
     let likeNode = "1277472323"; // 你的 likeNode 值
     let userId = "348228825"; // 用户的 ID
-    const clickLike = () => {
       console.log("点击事件生效了");
       if (clikelike1.value == 0) {
         console.log(String(postId));
@@ -317,6 +386,9 @@ export default {
     };
 
     return {
+      show,
+      onClickOverlay,
+      onClickCloseIcon,
       col,
       title,
       authors,
@@ -325,13 +397,18 @@ export default {
       ShowLevel,
       like1,
       star,
+      comment1,
       comment,
+      clikecomment1,
+      commentauthor,
+      commentcontent,
       expand,
       onClick,
       subscribe,
       showMore,
       showLess,
       clickLike,
+      clickcomment,
       clickStar,
     };
   },
