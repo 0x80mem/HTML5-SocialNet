@@ -125,6 +125,14 @@ const TypeConfig = {
         [ShowLevel['zip'],    ShowLevel['title']],
         [ShowLevel['full'],   ShowLevel['title']]
     ]),
+    "shared": new Types([
+        [ShowLevel['zip'],    ShowLevel['title']],
+        [ShowLevel['full'],   ShowLevel['title']]
+    ],
+    [
+        [ShowLevel['zip'],    ShowLevel['title']],
+        [ShowLevel['full'],   ShowLevel['title']]
+    ]),
 }
 
 export default TypeConfig

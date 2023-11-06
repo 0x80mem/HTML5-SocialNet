@@ -25,29 +25,11 @@
     <tool-basket>
         <home-tool></home-tool>
     </tool-basket>
-
-    <script>
-    import store from '../store';
-    import { createApp, ref } from 'vue';
-    import { ActionBar, ActionBarIcon, ActionBarButton, Popup } from 'vant';
-    import { mapState } from 'vuex';
-    import UserView from './UserView.vue'
-    import NavBar from '@/components/AppNav.vue';
-    import ToolBasket from '@/components/ToolBasket.vue';
-    import HomeTool from '@/components/HomeTool.vue';
-    import { Button } from 'vant';
-    import PostTree from '@/components/PostTree.vue';
-
-<style lang="less">
-    li {
-        list-style: none;
-    }
-</style>
+</template>
   
 <script>
 import store from '../store';
-import { createApp, ref } from 'vue';
-import { ActionBar, ActionBarIcon, ActionBarButton, Popup } from 'vant';
+import { ref,watch} from 'vue';
 import { mapState } from 'vuex';
 import UserView from './UserView.vue'
 import NavBar from '@/components/AppNav.vue';
@@ -55,16 +37,6 @@ import ToolBasket from '@/components/ToolBasket.vue';
 import HomeTool from '@/components/HomeTool.vue';
 import { Button } from 'vant';
 import PostTree from '@/components/PostTree.vue';
-
-    export default{
-        store,
-        components: {
-            UserView,
-            NavBar,
-            ToolBasket,
-            HomeTool,
-            PostTree,
-            [Button.name]: Button,
 
 export default{
     store,
@@ -80,17 +52,26 @@ export default{
         ...mapState(['postList'])
     },
     setup() {
+       
         const showLeft = ref(false)
         const onPanupLeft = ()=> {
             showLeft.value = true
         }
-        let postList = []
+        const postList = ref([]); // 使用ref()包装postList
+
         const getData = () => {
             store.commit("getPostList");
-            postList = store.state.postList;
-            console.log(postList);
         }
-        getData()
+
+        // 使用watch来监视store.state.postList的变化
+        watch(
+        () => store.state.postList,
+        (newPostList) => {
+            // 在postList发生变化时更新本地的postList
+            postList.value = newPostList;
+        }
+        );
+        getData(); 
     return {
         showLeft,
         postList,
@@ -99,5 +80,6 @@ export default{
     };
   },
 }
+
 
     </script>

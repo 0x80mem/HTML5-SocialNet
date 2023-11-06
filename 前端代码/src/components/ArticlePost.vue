@@ -213,7 +213,7 @@ export default {
       type: Set,
     },
     getFunc: {
-      type: Function,
+      type:  Function ,
     },
     deleteFunc: {
       type: Function,
@@ -257,93 +257,81 @@ export default {
     const commentcontent=[];
     clikecomment1.value=0;
     clikelike1.value = 0;
-    const getData = (post) => {
-
+    
+    const getData = async (post) => {
       title.value = post.content.title;
       authors.value = [];
-      for (let i = 0; i < post.author.length; i++) {
-        authors.value.push(
-          Object({
-            id: post.author[i],
-            title: props.getFunc(post.author[i]).content.title,
-          })
-        );
-      }
+
+      // 使用 Promise.all 等待所有异步操作完成
+      await Promise.all(
+        post.author.map(async (authorId) => {
+          const authorContent = await props.getFunc(authorId);
+          authors.value.push({ id: authorId, title: authorContent.content.title });
+        })
+      );
+
       content.value = post.content.content;
       showLevel.value = post.showLevel;
       star.value = 0;
       comment.value = 0;
     };
     getData(props.post);
-    const getlike = (post) => {
+
+    const getlike = async (post) => {
       for (let i = 0; i < post.chiPost.length; i++) {
-        console.log(props.getFunc(post.chiPost[i]).type);
-        if (props.getFunc(post.chiPost[i]).type == "like") {
+        const postContent = await props.getFunc(post.chiPost[i]);
+        console.log(postContent.type);
+        if (postContent.type === "liked") {
           console.log("我已成功找到点赞数");
-          like1.value = props.getFunc(post.chiPost[i]).content.title;
+          like1.value = postContent.content.title;
         }
       }
     };
     getlike(props.post);
-    const getcommentnumber = (post) => {
-      comment1.value=0;
+
+    const getcommentnumber = async (post) => {
+      comment1.value = 0;
       for (let i = 0; i < post.chiPost.length; i++) {
-        console.log(props.getFunc(post.chiPost[i]).type);
-        if (props.getFunc(post.chiPost[i]).type == "comment") {
+        const postContent = await props.getFunc(post.chiPost[i]);
+        console.log(postContent.type);
+        if (postContent.type === "comment") {
           console.log("我已成功找到评论数");
           comment1.value++;
         }
       }
     };
-    getcommentnumber(props.post)
-    const showMore = () => {
+    getcommentnumber(props.post);
+
+    const showMore = async() => {
       const prevScrollY = window.scrollY;
-      expand(
-        props.post,
-        props.visit,
-        ShowLevel["full"],
-        props.getFunc,
-        props.deleteFunc
-      );
-      getData(props.post);
+      expand(props.post, props.visit, ShowLevel["full"], props.getFunc, props.deleteFunc);
+      await getData(props.post);
       requestAnimationFrame(function () {
         window.scrollTo({ top: prevScrollY, behavior: "instant" });
       });
     };
 
     const showLess = () => {
-      expand(
-        props.post,
-        props.visit,
-        ShowLevel["zip"],
-        props.getFunc,
-        props.deleteFunc
-      );
+      expand(props.post, props.visit, ShowLevel["zip"], props.getFunc, props.deleteFunc);
       getData(props.post);
     };
-    const clickcomment = (post) => {
-   //获取评论数
-
-
-    
-   //获取评论
-    show.value = true;
-    console.log(clikecomment1.value);
-    if(clikecomment1.value==0){
-      for (let i = 0; i < post.chiPost.length; i++) {
-        console.log(props.getFunc(post.chiPost[i]).type);
-        if (props.getFunc(post.chiPost[i]).type == "comment") {
-          console.log("我又成功");
-        
-          commentauthor.push( props.getFunc(post.chiPost[i]).content.title);
-      
-          commentcontent.push(props.getFunc(post.chiPost[i]).content.content);
-          console.log(props.getFunc(post.chiPost[i]).content.content);
+    const clickcomment = async (post) => {
+      show.value = true;
+      console.log(clikecomment1.value);
+      if (clikecomment1.value === 0) {
+        for (let i = 0; i < post.chiPost.length; i++) {
+          const postContent = await props.getFunc(post.chiPost[i]);
+          console.log(postContent.type);
+          if (postContent.type === "comment") {
+            console.log("我又成功");
+            commentauthor.push(postContent.content.title);
+            commentcontent.push(postContent.content.content);
+            console.log(postContent.content.content);
+          }
         }
+        if (clikecomment1.value === 0) clikecomment1.value++;
       }
-    } 
-    if(clikecomment1.value==0)clikecomment1.value++; 
-      }
+    };
     const clickLike = (post) => {
       let postId = post.id; // 从组件的 props 或 data 中获取需要的数据
     let collected = "216498386"; // 例如，假设帖子已经被收藏

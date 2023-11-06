@@ -1,6 +1,7 @@
+
 import axios from 'axios'
 import { createStore } from 'vuex'
-import * as apiFunc from './api'
+import { dlogin } from './debug_interface'
 var api = axios.create({
 	baseURL: 'http://47.93.10.201/api',
 	// baseURL: "http://localhost:8088",
@@ -23,12 +24,19 @@ export default createStore({
 			username: ''
 		},
 		postList: [],
+		isDebug: false,
 	},
 	getters: {
 	},
 	mutations: {
 		//登录
 		login(state, [username, password]) {
+			if (state.isDebug) {
+				state.userInfo.id = dlogin(username, password);
+				state.userInfo.isLogin = true;
+				state.userInfo.username = username;
+				return;
+			}
 			console.log(username)
 			console.log(password)
 			api.post("/user/login", { name: username, password: password }).then(res => {
@@ -116,8 +124,10 @@ export default createStore({
 					pageSize: 99999//页面大小
 				}
 			}).then(res => {
-				//转成postList
-				state.postList = apiFunc.convertListVToPost(res.data.data);
+				console.log(res);
+				state.postList.push(res.data.data[0].node);
+				state.postList = [];
+				console.log(state.postList);
 			}).catch(res => {
 				console.log(res);
 			})
@@ -133,7 +143,6 @@ export default createStore({
 									 }
 						}
 		 */
-		
 		post(state, postPayload) {
 			api.post('/post/post', postPayload
 			).then(res => {
@@ -151,22 +160,6 @@ export default createStore({
 				}
 			}).then(res => {
 				console.log(res);
-			}).catch(err => {
-				console.log(err);
-			})
-		},
-		queryPostById(state,id){
-			api.get('/post/queryPostById', {
-				params: {
-					id: id
-				}
-			}).then(res => {
-				//state.postList = res.data;
-				if(res.data.code==1)
-					return res.data.data;
-				else
-					return null;
-
 			}).catch(err => {
 				console.log(err);
 			})
