@@ -58,31 +58,48 @@ export function convertListVToPost(postVList) {
 	return postList;
 }
 
-export function like(postId){
-	apiFm.post('/rel/like', {
-		postId: postId,
-		userId: store.state.userInfo.id
-	}).then(res => {
-		if(res.data.code==1){
-			return convertPostVToPost(res.data.data)
-		}
-	}).catch(err => {
-		console.log(err);
-	})
+
+export async function like(postId) {
+  try {
+    const response = await apiFm.post('/rel/like', {
+      postId: postId,
+      // userId: store.state.userInfo.id
+			userId: 1803090083
+    });
+		console.log("like res is:",response)
+    if (response.data.code === 1) {
+      return convertPostVToPost(response.data.data);
+    } else {
+			console.log("response msg:",response.data.msg)
+      return null;
+    }
+  } catch (error) {
+    console.error(error);
+		return null;
+  }
 }
-export function uLike(postId){
-	apiFm.delete('/rel/cancelLike', {
-		data:{
-			postId: postId,
-			userId: store.state.userInfo.id
-		}
-	}).then(res => {
-		if(res.data.code==1){
-			return convertPostVToPost(res.data.data)
-		}else{
-			return null;
-		}
-	}).catch(err => {
-		console.log(err);
-	})
+
+
+
+
+
+export async function uLike(postId) {
+  try {
+    const res = await apiFm.delete('/rel/cancelLike', {
+      data: {
+        postId: postId,
+        // userId: store.state.userInfo.id
+				userId: 1803090083
+      }
+    });
+
+    if (res.data.code === 1) {
+      return convertPostVToPost(res.data.data);
+    } else {
+      return null;
+    }
+  } catch (err) {
+    console.log(err);
+    return null; // 处理错误并返回null
+  }
 }

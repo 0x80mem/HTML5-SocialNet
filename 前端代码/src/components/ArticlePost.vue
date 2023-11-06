@@ -190,6 +190,7 @@ import RecNode from "./RecNode.vue";
 import Expand from "@/scripts/Expand";
 import ShowLevel from "@/scripts/ShowLevel";
 import { Icon, Cell, CellGroup,Popup,showToast } from "vant";
+import * as api from '../store/api'
 const app = createApp();
 
 app.use(RecNode);
@@ -332,28 +333,18 @@ export default {
         if (clikecomment1.value === 0) clikecomment1.value++;
       }
     };
-    const clickLike = (post) => {
+    const clickLike =  async(post) => {
       let postId = post.id; // 从组件的 props 或 data 中获取需要的数据
-    let collected = "216498386"; // 例如，假设帖子已经被收藏
-    let liked = "585358255"; // 例如，用户已经喜欢过帖子
-    let collectNode = "410142786"; // 你的 collectNode 值
-    let likeNode = "1277472323"; // 你的 likeNode 值
-    let userId = "348228825"; // 用户的 ID
       console.log("点击事件生效了");
       if (clikelike1.value == 0) {
         console.log(String(postId));
-        store.commit("like", {
-          postId: postId,
-          collected: collected,
-          liked: liked,
-          collectNode: collectNode,
-          likeNode: likeNode,
-          userId: userId,
-        });
-
-        col.value = "red";
-        clikelike1.value++;
-        like1.value++;
+        const newLikePost = await api.like(postId);
+        console.log("return likePost is:",newLikePost)
+        if(newLikePost!=null){
+            clikelike1.value = newLikePost.content.title;
+            col.value = "red";
+            like1.value++;
+        }
         return;
       }
       if (clikelike1.value == 1) {
