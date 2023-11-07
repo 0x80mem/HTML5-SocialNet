@@ -22,6 +22,7 @@
       UserInfoView,
     },
     setup() {
+      console.log("DecodeView 1.")
       const route = useRoute();
       const showBottom = ref(false);
       let type = "recommend";

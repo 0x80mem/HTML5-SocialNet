@@ -90,6 +90,9 @@
     <button @click="ulike">
       ulike
     </button>
+    <button @click="comment">
+      comment
+    </button>
   </div>
 </template>
 
@@ -100,6 +103,8 @@ import test_case from "../store/test_case1";
 import axios from 'axios'
 import * as api from '../store/api';
 import * as deb from '../store/debug_interface'
+import Post from '@/scripts/Post';
+import Content from '@/scripts/Content';
 export default {
 
   store,
@@ -234,7 +239,12 @@ export default {
       console.log(re)
 
     }
+    const comment= async() => {
+      let comment = new Post(0,'comment',833460694,new Content('ShacooKL',false,'这是第二条条评论'),[1026073299],[])
+      const re = await api.comment(comment);
+      console.log(re)
 
+    }
     return {
       login,
       like,
@@ -259,7 +269,8 @@ export default {
       removeNode,
       updateContent,
       getContent,
-      queryPostById
+      queryPostById,
+      comment
     };
   },
 };

@@ -63,8 +63,10 @@ props: {
       type: Function,
   }
 },
-setup() {
+setup(props) {
+  console.log('RecNode props is :',props.post.type)
   return {
+
   }; 
 },
 };

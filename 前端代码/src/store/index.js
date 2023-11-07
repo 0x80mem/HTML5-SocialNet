@@ -1,20 +1,21 @@
 import axios from 'axios'
 import { createStore } from 'vuex'
 import * as apiFunc from './api'
-var api = axios.create({
-	baseURL: 'http://47.93.10.201/api',
-	// baseURL: "http://localhost:8088",
-	timeout: 1000,
-})
-var apiFm = axios.create({
-	// baseURL: "http://localhost:8088",
-	baseURL: 'http://47.93.10.201/api',
-	timeout: 1000,
-	headers: {
-		'Content-Type': 'application/x-www-form-urlencoded'
-	},
+// const baseURL ="http://localhost:8088";
+const baseURL= 'http://47.93.10.201/api'
+const timeout = 10000
+const axiosConfig = {
+  baseURL,
+  timeout,
+};
 
-})
+const api = axios.create(axiosConfig);
+const apiFm = axios.create({
+  ...axiosConfig,
+  headers: {
+    'Content-Type': 'application/x-www-form-urlencoded',
+  },
+});
 export default createStore({
 	state: {
 		userInfo: {
@@ -29,13 +30,16 @@ export default createStore({
 	mutations: {
 		//登录
 		login(state, [username, password]) {
-			console.log(username)
-			console.log(password)
+			
 			api.post("/user/login", { name: username, password: password }).then(res => {
-				state.userInfo.id = res.data.data.id;
-				state.userInfo.isLogin = true;
-				state.userInfo.username = username;
-				console.log(res);
+				if(res.data.code==1){
+					state.userInfo.id = res.data.data.id;
+					state.userInfo.isLogin = true;
+					state.userInfo.username = username;
+					console.log(res)
+				}
+				
+				
 			}).catch(res => {
 				console.log(res);
 			})
@@ -44,7 +48,7 @@ export default createStore({
 		logout() {
 			api.get("/user/logout").then(res => {
 
-				console.log(res);
+				
 			}).catch(res => {
 				console.log(res);
 			})
@@ -52,8 +56,7 @@ export default createStore({
 		//注册
 		register(state, [username, password]) {
 			api.post('/user/register', { name: username, password: password }).then(res => {
-				console.log(username);
-				console.log(res)
+				
 				state.userInfo;
 			}).catch(res => {
 				console.error(res);
@@ -117,7 +120,7 @@ export default createStore({
 				}
 			}).then(res => {
 				//转成postList
-				state.postList = apiFunc.convertListVToPost(res.data.data);
+				state.postList = apiFunc.getIDList(res.data.data);
 			}).catch(res => {
 				console.log(res);
 			})
@@ -135,7 +138,8 @@ export default createStore({
 		 */
 		
 		post(state, postPayload) {
-			api.post('/post/post', postPayload
+			postPayload.append('userId',833460694)
+			apiFm.post('/post/post', postPayload
 			).then(res => {
 				console.log(res);
 			}).catch(err => {

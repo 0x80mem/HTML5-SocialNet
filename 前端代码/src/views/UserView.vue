@@ -36,6 +36,7 @@ export default {
       store.commit("logout")
     }
     const toUserInfo = ()=> {
+      console.log(" 新号别搞",store.state.userInfo)
       router.push({path: "", query: {id: store.state.userInfo.id}})
     }
     return { 

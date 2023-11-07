@@ -54,7 +54,7 @@ export default {
       toolbar: [
       'image emoticons forecolor backcolor bold italic underline strikethrough link anchor | customButton'
       ], //工具栏配置，设为false则隐藏
-
+      entity_encoding​:'raw',
 
 
       paste_data_images: true, //图片是否可粘贴

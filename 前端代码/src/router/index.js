@@ -11,6 +11,7 @@ const routes = [
     path: '/',
     name: 'decode',
     component: DecodeView
+    // component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue')
   },
   // {
   //   path: '/register',

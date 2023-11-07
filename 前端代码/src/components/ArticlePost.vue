@@ -191,6 +191,7 @@ import Expand from "@/scripts/Expand";
 import ShowLevel from "@/scripts/ShowLevel";
 import { Icon, Cell, CellGroup,Popup,showToast } from "vant";
 import * as api from '../store/api'
+import {  SUCESS } from "@/store/statusCodes";
 const app = createApp();
 
 app.use(RecNode);
@@ -280,10 +281,18 @@ export default {
 
     const getlike = async (post) => {
       for (let i = 0; i < post.chiPost.length; i++) {
+        
         const postContent = await props.getFunc(post.chiPost[i]);
-        console.log(postContent.type);
         if (postContent.type === "liked") {
-          console.log("我已成功找到点赞数");
+         
+          if(store.state.userInfo.isLogin){
+            const getLikeStatu = await api.isLikedPost(post.id);
+            if(getLikeStatu){
+              col.value = 'red';
+              clikelike1.value = 1;
+            }
+              
+          }
           like1.value = postContent.content.title;
         }
       }
@@ -294,9 +303,9 @@ export default {
       comment1.value = 0;
       for (let i = 0; i < post.chiPost.length; i++) {
         const postContent = await props.getFunc(post.chiPost[i]);
-        console.log(postContent.type);
+        
         if (postContent.type === "comment") {
-          console.log("我已成功找到评论数");
+          
           comment1.value++;
         }
       }
@@ -318,16 +327,16 @@ export default {
     };
     const clickcomment = async (post) => {
       show.value = true;
-      console.log(clikecomment1.value);
+      
       if (clikecomment1.value === 0) {
         for (let i = 0; i < post.chiPost.length; i++) {
           const postContent = await props.getFunc(post.chiPost[i]);
-          console.log(postContent.type);
+          
           if (postContent.type === "comment") {
-            console.log("我又成功");
+           
             commentauthor.push(postContent.content.title);
             commentcontent.push(postContent.content.content);
-            console.log(postContent.content.content);
+            
           }
         }
         if (clikecomment1.value === 0) clikecomment1.value++;
@@ -335,28 +344,22 @@ export default {
     };
     const clickLike =  async(post) => {
       let postId = post.id; // 从组件的 props 或 data 中获取需要的数据
-      console.log("点击事件生效了");
+     
       if (clikelike1.value == 0) {
-        console.log(String(postId));
         const newLikePost = await api.like(postId);
-        console.log("return likePost is:",newLikePost)
-        if(newLikePost!=null){
-            clikelike1.value = newLikePost.content.title;
+        if(newLikePost!=null&&typeof newLikePost !='string'){
+            clikelike1.value++;
             col.value = "red";
-            like1.value++;
+            like1.value = newLikePost.content.title;
         }
         return;
       }
       if (clikelike1.value == 1) {
-        console.log(String(postId));
-        store.commit("cancelLike", {
-          postId: 1816142823,
-          liked: 216498386,
-          likeNode: 913137261,
-        });
+        const newLikePost = await api.uLike(postId);
+        console.log(newLikePost);
         col.value = "blue";
         clikelike1.value--;
-        like1.value--;
+        like1.value= newLikePost.content.title;
         return;
       }
     };

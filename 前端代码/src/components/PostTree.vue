@@ -1,5 +1,4 @@
 <template>
-  <!-- <RecNode :post="Post" :parNode="Post" :getFunc="getFunc" :deleteFunc="deleteFunc"></RecNode> -->
   <RecNode v-if="Post" :post="Post" :parNode="Post" :visit="visit" :getFunc="getFunc" :deleteFunc="deleteFunc"></RecNode>
 </template>
 
@@ -31,6 +30,7 @@ props: {
   },
 },
 setup(props) {
+  console.log("PostTree 3.")
   const getFunc = async (id) => {
     const post = await api.getPost(id);
     return post;
