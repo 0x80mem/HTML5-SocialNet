@@ -79,7 +79,7 @@ export default {
     const router = useRouter()
    
     const expand = (post, visit, showLevel, getFunc, deleteFunc) => {
-        Expand(post, visit, showLevel, getFunc, deleteFunc)
+       Expand(post, visit, showLevel, getFunc, deleteFunc)
     }
     const onClick = (post) => {
         if (post.showLevel == ShowLevel['title'])

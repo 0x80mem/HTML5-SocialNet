@@ -1,6 +1,8 @@
 <template>
     <app-nav :title="UserName"></app-nav>
-    <post-tree :id="id" showLevel="full"></post-tree>
+    <template v-if="UserId !== ''">
+        <post-tree :id="UserId" showLevel="full"></post-tree>
+    </template>
     <tool-basket>
         <home-tool></home-tool>
     </tool-basket>
@@ -9,8 +11,9 @@
 <script>
 import AppNav from '@/components/AppNav.vue'
 import PostTree from '@/components/PostTree.vue'
-import { dgetPost } from '@/store/debug_interface';
-
+import { onMounted, ref } from 'vue';
+import { getPost } from '@/store/api';
+/* eslint-disable */
 export default{
     props: {
         id: {
@@ -23,15 +26,25 @@ export default{
         PostTree,
     },
     setup(props) {
-        const getFunc = (id) => {
-            return dgetPost(id);
-        }
-        let Post = getFunc(props.id)
-        const UserName = Post.content.title
-        console.log(Post)
+        const UserName = ref(''); // 使用 ref 来保存用户名
+        const UserId = ref('');
+        onMounted(async () => {
+            const Post = await getPost(props.id);
+            UserName.value = Post.content.title;
+            UserId.value = props.id
+        });
         return {
             UserName,
-        }
-    },
-}
+            UserId
+        };
+    }
+};
+
+
+
+
+
+
+
+
 </script>

@@ -1,21 +1,21 @@
+
 import axios from 'axios'
 import { createStore } from 'vuex'
-import * as apiFunc from './api'
-// const baseURL ="http://localhost:8088";
-const baseURL= 'http://47.93.10.201/api'
-const timeout = 10000
-const axiosConfig = {
-  baseURL,
-  timeout,
-};
+import { dlogin } from './debug_interface'
+var api = axios.create({
+	baseURL: 'http://47.93.10.201/api',
+	// baseURL: "http://localhost:8088",
+	timeout: 1000,
+})
+var apiFm = axios.create({
+	// baseURL: "http://localhost:8088",
+	baseURL: 'http://47.93.10.201/api',
+	timeout: 1000,
+	headers: {
+		'Content-Type': 'application/x-www-form-urlencoded'
+	},
 
-const api = axios.create(axiosConfig);
-const apiFm = axios.create({
-  ...axiosConfig,
-  headers: {
-    'Content-Type': 'application/x-www-form-urlencoded',
-  },
-});
+})
 export default createStore({
 	state: {
 		userInfo: {
@@ -24,22 +24,26 @@ export default createStore({
 			username: ''
 		},
 		postList: [],
+		isDebug: false,
 	},
 	getters: {
 	},
 	mutations: {
 		//登录
 		login(state, [username, password]) {
-			
+			if (state.isDebug) {
+				state.userInfo.id = dlogin(username, password);
+				state.userInfo.isLogin = true;
+				state.userInfo.username = username;
+				return;
+			}
+			console.log(username)
+			console.log(password)
 			api.post("/user/login", { name: username, password: password }).then(res => {
-				if(res.data.code==1){
-					state.userInfo.id = res.data.data.id;
-					state.userInfo.isLogin = true;
-					state.userInfo.username = username;
-					console.log(res)
-				}
-				
-				
+				state.userInfo.id = res.data.data.id;
+				state.userInfo.isLogin = true;
+				state.userInfo.username = username;
+				console.log(res);
 			}).catch(res => {
 				console.log(res);
 			})
@@ -48,7 +52,7 @@ export default createStore({
 		logout() {
 			api.get("/user/logout").then(res => {
 
-				
+				console.log(res);
 			}).catch(res => {
 				console.log(res);
 			})
@@ -56,7 +60,8 @@ export default createStore({
 		//注册
 		register(state, [username, password]) {
 			api.post('/user/register', { name: username, password: password }).then(res => {
-				
+				console.log(username);
+				console.log(res)
 				state.userInfo;
 			}).catch(res => {
 				console.error(res);
@@ -119,8 +124,10 @@ export default createStore({
 					pageSize: 99999//页面大小
 				}
 			}).then(res => {
-				//转成postList
-				state.postList = apiFunc.getIDList(res.data.data);
+				console.log(res);
+				state.postList.push(res.data.data[0].node);
+				state.postList = [];
+				console.log(state.postList);
 			}).catch(res => {
 				console.log(res);
 			})
@@ -136,30 +143,14 @@ export default createStore({
 									 }
 						}
 		 */
-		
 		post(state, postPayload) {
-			if(state.userInfo.isLogin){
-				postPayload.append('userId',state.userInfo.id)
-				apiFm.post('/post/post', postPayload
-				).then(res => {
-					console.log(res);
-				}).catch(err => {
-					console.log(err);
-				})
-			}
-			
-
-		},
-		comment(state,postPayload){
-			if(state.userInfo.isLogin){
-				postPayload.append('userId',state.userInfo.id)
-				apiFm.post('/post/comment', postPayload
-				).then(res => {
-					console.log(res);
-				}).catch(err => {
-					console.log(err);
+			api.post('/post/post', postPayload
+			).then(res => {
+				console.log(res);
+			}).catch(err => {
+				console.log(err);
 			})
-			}
+
 		},
 		//关键词查找帖子
 		queryByContent(state, content) {
@@ -169,22 +160,6 @@ export default createStore({
 				}
 			}).then(res => {
 				console.log(res);
-			}).catch(err => {
-				console.log(err);
-			})
-		},
-		queryPostById(state,id){
-			api.get('/post/queryPostById', {
-				params: {
-					id: id
-				}
-			}).then(res => {
-				//state.postList = res.data;
-				if(res.data.code==1)
-					return res.data.data;
-				else
-					return null;
-
 			}).catch(err => {
 				console.log(err);
 			})

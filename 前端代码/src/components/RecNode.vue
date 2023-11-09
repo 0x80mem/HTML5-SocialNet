@@ -12,16 +12,20 @@
       <div v-else-if="post.type == 'fans'">
         <Fans-post :post="post" :parNode="parNode" :visit="visit" :getFunc="getFunc" :deleteFunc="deleteFunc"></Fans-post>
       </div>
-      <div v-else-if="post.type == 'like'">
-      
+      <div v-else-if="post.type == 'collect'">
+        <Collect-post :post="post" :parNode="parNode" :visit="visit" :getFunc="getFunc" :deleteFunc="deleteFunc"></Collect-post>
+      </div>
+      <div v-else-if="post.type == 'like1111'">
+        <default-post :post="post" :parNode="parNode" :visit="visit" :getFunc="getFunc" :deleteFunc="deleteFunc"></default-post>
       </div>
       <div v-else>
-        <default-post :post="post" :parNode="parNode" :visit="visit" :getFunc="getFunc" :deleteFunc="deleteFunc"></default-post>
+        
       </div>
   </div>
 </template>
 
 <script>
+/* eslint-disable */ 
 import { createApp,  } from 'vue';
 import store from '../store';
 import DefaultPost from './DefaultPost.vue';
@@ -29,12 +33,12 @@ import ArticlePost from './ArticlePost.vue';
 import UserInfoPost from './UserInfoPost.vue';
 import SubscribePost  from './SubscribePost.vue';
 import FansPost  from './FansPost.vue';
-
+import CollectPost  from './CollectPost.vue';
 const app = createApp();
 app.use(DefaultPost);
 app.use(SubscribePost);
 app.use(FansPost);
-
+app.use(CollectPost);
 export default {
 store,
 name: 'RecNode',
@@ -44,7 +48,7 @@ components: {
   UserInfoPost,
   SubscribePost,
   FansPost,
- 
+  CollectPost,
 },
 props: {
   post: {
@@ -63,8 +67,10 @@ props: {
       type: Function,
   }
 },
-setup() {
+setup(props) {
+  console.log('rec',props.post)
   return {
+
   }; 
 },
 };

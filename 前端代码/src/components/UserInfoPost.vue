@@ -1,23 +1,23 @@
 <template>
     <div @click="onClick(post)" >
-        <div v-if="post.parPost.length && typeof(post.parPost[0]) == 'object'">
+        <div v-if="post.parPost.length && typeof(post.parPost[0]) == 'object'&&(post.type=='user'||post.type=='subscribe'||post.type=='fans')">
             <div v-for="sub in post.parPost" :key="sub.id" :sub="sub">
                 <div v-if="key != parNode.id" class="content-wrapper">
-                    <RecNode :post="sub" :parNode="post" :visit="visit" :getFunc="getFunc" :deleteFunc="deleteFunc"></RecNode>
+                    <RecNode v-if="sub" :post="sub" :parNode="post" :visit="visit" :getFunc="getFunc" :deleteFunc="deleteFunc"></RecNode>
                 </div>
             </div>
         </div>
         <div v-if="post.type=='user'"><van-icon name="friends-o" /> 
   
-  <post-content :content="post.content" :showLevel="post.showLevel" :type="post.type"></post-content>
- </div>
+      <post-content :content="post.content" :showLevel="post.showLevel" :type="post.type"></post-content>
+    </div>
        
     
       
-        <div v-if="post.chiPost.length && typeof(post.chiPost[0]) == 'object'">
+    <div v-if="post.chiPost.length && typeof(post.chiPost[0]) == 'object'&&(post.type=='user'||post.type=='subscribe'||post.type=='fans')">
             <div v-for="sub in post.chiPost" :key="sub.id" :sub="sub">
                 <div v-if="key != parNode.id">
-                    <RecNode :post="sub" :parNode="post" :visit="visit" :getFunc="getFunc" :deleteFunc="deleteFunc"></RecNode>
+                    <RecNode v-if="sub" :post="sub" :parNode="post" :visit="visit" :getFunc="getFunc" :deleteFunc="deleteFunc"></RecNode>
                 </div>
             </div>
         </div>
@@ -82,11 +82,12 @@ export default {
         type: Function,
     }
   },
-  setup() {
+  setup(props) {
+    console.log('UserInfoPost props.post',props.post)
     const router = useRouter()
    
-    const expand = (post, visit, showLevel, getFunc, deleteFunc) => {
-        Expand(post, visit, showLevel, getFunc, deleteFunc)
+    const expand =  (post, visit, showLevel, getFunc, deleteFunc) => {
+       Expand(post, visit, showLevel, getFunc, deleteFunc)
     }
     const onClick = (post) => {
         if (post.showLevel == ShowLevel['title'])
