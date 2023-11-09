@@ -25,7 +25,10 @@
       <div class="content" v-if="showLevel >= ShowLevel['zip']">
         <div v-if="showLevel == ShowLevel['zip']">
           <div class="show-less" tips="缩略内容" @click="showMore()">
-            {{ content }}
+            <template v-for="(item, index) in contents" :key="index">
+                    <img v-if="item.includes('http')" :src="item" alt="Image" :width="200" :height="200" />
+                    <p v-else-if="item!='jpg'&&item!='png'&&item!='jpeg'">{{ item }}</p>
+                </template>
           </div>
           <div class="options">
             <div class="like" tips="点赞">
@@ -63,7 +66,10 @@
         </div>
         <div v-else-if="showLevel >= ShowLevel['full']">
           <div class="show-more" tips="内容">
-            {{ content }}
+            <template v-for="(item, index) in contents" :key="index">
+                    <img v-if="item.includes('http')" :src="item" alt="Image" :width="350" :height="500" />
+                    <p v-else-if="item!='jpg'&&item!='png'&&item!='jpeg'">{{ item }}</p>
+                </template>
           </div>
           <div class="options">
             <div class="like" tips="点赞">
@@ -204,6 +210,7 @@ export default {
     },
   },
   setup(props) {
+    const contents = ref([]);
     const show = ref(false);
     const onClickOverlay = () => {
       showToast('click-overlay');
@@ -260,6 +267,10 @@ export default {
       );
 
       content.value = post.content.content;
+
+      contents.value = post.content.content.split(/(https?:\/\/[^\s]+(:?jpg|jpeg|png|gif))/g);
+
+
       showLevel.value = post.showLevel;
       star.value = 0;
       comment.value = 0;
@@ -416,6 +427,7 @@ export default {
       commentauthor,
       commentcontent,
       currPostId,
+      contents,
       expand,
       onClick,
       subscribe,
