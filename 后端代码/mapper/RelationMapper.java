@@ -9,6 +9,7 @@ import java.util.List;
 
 @Mapper
 public interface RelationMapper extends BaseMapper<Relation> {
-    public List<NodeDTO> getChiNodes(int parId);
-
+    List<Integer> getChiNodes(int parId);
+    List<Integer> getParNodes(int chiId);
+    Integer getChiNodeByType(String type,int parId);
 }

@@ -15,38 +15,40 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements IPostService {
+    private final INodeService nodeService;
+    private final IContentService contentService;
+
     @Autowired
-    INodeService nodeService;
-    @Autowired
-    IContentService contentService;
-    @Autowired
-    IRelationService relationService;
+    public PostServiceImpl(INodeService nodeService, IContentService contentService) {
+        this.nodeService = nodeService;
+        this.contentService = contentService;
+    }
     @Override
-    public boolean initPost(PostDTO postDTO,Integer author) {
+    public boolean initPost(ContentDTO contentDTO,Integer author) {
         //检查post是否为空
-        if (postDTO == null)
+        if (contentDTO == null)
            return false;
         //创建node
-        Integer nodeId=nodeService.createNode(null,"post");
+        Integer nodeId=nodeService.createNode(null,"post",author);
         //post存入信息，保存
-        Post post = DTOUtil.DTOToPost(postDTO);
+        Post post = new Post();
         post.setId(nodeId);
-        post.setAuthor(author);
-        System.out.println("author  "+nodeId);
         save(post);
 
         //保存content
-        Content content = DTOUtil.DTOToContent(postDTO.getNode().getContent());
+        Content content = new Content(contentDTO);
         content.setId(nodeId);
         contentService.save(content);
 
         //初始化 liked shared collected
-        Integer liked = nodeService.createNode(nodeId,"liked",new ContentDTO("0",""));
+        Integer liked = nodeService.createNode(nodeId,"liked",new ContentDTO("0",""),author);
 
-        Integer shared = nodeService.createNode(nodeId,"shared",new ContentDTO("0",""));
+        Integer shared = nodeService.createNode(nodeId,"shared",new ContentDTO("0",""),author);
 
-        Integer collected = nodeService.createNode(nodeId,"collected",new ContentDTO("0",""));
+        Integer collected = nodeService.createNode(nodeId,"collected",new ContentDTO("0",""),author);
 
         return true;
     }
+
+
 }

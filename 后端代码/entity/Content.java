@@ -24,5 +24,14 @@ public class Content implements Serializable {
 
     private String content;
 
-
+    public Content(Integer id, String title, String content) {
+        this.id = id;
+        this.title = title;
+        this.content = content;
+    }
+    public Content(ContentDTO contentDTO) {
+        this.id=0;
+        this.title = contentDTO.getTitle();
+        this.content = contentDTO.getContent();
+    }
 }

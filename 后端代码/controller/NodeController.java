@@ -2,32 +2,32 @@ package com.html.nds.controller;
 
 import com.html.nds.common.DTOUtil;
 import com.html.nds.common.R;
-import com.html.nds.entity.Content;
-import com.html.nds.entity.ContentDTO;
-import com.html.nds.entity.NodeDTO;
+import com.html.nds.entity.*;
 import com.html.nds.service.IContentService;
 import com.html.nds.service.INodeService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/node")
 @Transactional
+@CrossOrigin
+@Configuration
 public class NodeController {
     @Autowired
     INodeService nodeService;
     @Autowired
     IContentService contentService;
     @PostMapping("/createNode")
-    public R<String> createNode(@RequestBody NodeDTO nodeDTO) {
 
-        Integer id = nodeService.createNode(nodeDTO.getId(), nodeDTO.getType());
-
+    public R<String> createNode(@RequestBody PostV postV) {
+        Integer id = nodeService.createNode(postV.getParPost().get(0), postV.getType(),postV.getAuthor());
         if(id==null)
             return R.error();
-        if (nodeDTO.getContent() != null){
-            Content content_= DTOUtil.DTOToContent(nodeDTO.getContent());
+        if (postV.getContent() != null){
+            Content content_= DTOUtil.DTOToContent(postV.getContent());
             content_.setId(id);
             return R.result(contentService.save(content_));
         }
@@ -55,6 +55,13 @@ public class NodeController {
         if (contentDTO != null)
             return R.success(contentDTO);
         return R.error();
+    }
+    @GetMapping("/getNode")
+    public R<PostV> getNode(Integer id) {
+        PostV postV = nodeService.getNode(id);
+        if(postV==null)
+            return R.error();
+        return R.success(postV);
     }
 
 }

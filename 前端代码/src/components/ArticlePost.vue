@@ -42,7 +42,7 @@
 
               <van-popup v-model:show="show" position="bottom" :style="{ height: '90%', width: '100%' }" closeable
                 @click-overlay="onClickOverlay" @click-close-icon="onClickCloseIcon">
-                <RichEditor :editorConfig="customEditorConfig" :commentPostId="currPostId" />
+                <RichEditor :editorConfig="customEditorConfig" :commentPostId="currPostId" v-if="show"/>
                 <div class="content" v-for="(author, index) in commentauthor" :key="index">
                   <p>作者: {{ author }}</p>
                   <p>内容: {{ commentcontent[index] }}</p>
@@ -306,13 +306,13 @@ export default {
         if (postGot.type === "collected") {
 
           if (store.state.userInfo.isLogin) {
-           
+
             const getCollectStatu = await api.isCollectedPost(post.id);
-            
+
             if (getCollectStatu) {
               starColor.value = 'red';
               clikestar1.value = 1;
-              
+
             }
 
           }
@@ -349,7 +349,7 @@ export default {
             commentcontent.push(postGot.content.content);
 
           }
-       
+
       }
       getcommentnumber(post)
       show.value = true;

@@ -29,12 +29,6 @@ public class DTOUtil {
         return userToDTOMapperFactory().getMapperFacade().mapAsList(users,UserDTO.class);
     }
 
-    public static  Post DTOToPost(PostDTO postDTO){
-        return new DefaultMapperFactory.Builder().build().getMapperFacade().map(postDTO,Post.class);
-    }
-    public static  List<Post> DTOToPost( List<PostDTO> postDTOs){
-        return new DefaultMapperFactory.Builder().build().getMapperFacade().mapAsList(postDTOs,Post.class);
-    }
 
     public static Content DTOToContent(ContentDTO contentDTO){
         return new DefaultMapperFactory.Builder().build().getMapperFacade().map(contentDTO,Content.class);
