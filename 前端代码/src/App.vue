@@ -1,39 +1,44 @@
 <template>
-<router-view :key="route.fullPath"/>
-</template>
+    <router-view :key="route.fullPath"/>
+    </template>
 
-<style lang="less">
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
-
-nav {
-  padding: 30px;
-
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-
-    &.router-link-exact-active {
-      color: #42b983;
+    <style lang="less">
+    #app {
+      font-family: Avenir, Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-align: center;
+      color: #2c3e50;
     }
-  }
-}
-</style>
 
+    nav {
+      padding: 30px;
 
-<script>
-import { useRoute } from "vue-router"
-export default {
-  setup() {
-    const route = useRoute()
-    return {
-      route
+      a {
+        font-weight: bold;
+        color: #2c3e50;
+
+        &.router-link-exact-active {
+          color: #42b983;
+        }
+      }
     }
-  }
-}
-</script>
+
+    .tox-tinymce-aux {
+        z-index: 9999 !important;
+    }
+
+    </style>
+
+
+    <script>
+    import { useRoute } from "vue-router"
+    export default {
+      setup() {
+        const route = useRoute()
+        return {
+          route
+        }
+      }
+    }
+    </script>
