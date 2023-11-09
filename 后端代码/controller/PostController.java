@@ -7,16 +7,27 @@ import com.html.nds.common.R;
 import com.html.nds.entity.*;
 import com.html.nds.mapper.PostMapper;
 import com.html.nds.service.*;
+import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
+
+import com.google.gson.Gson;
 
 @RestController
 @RequestMapping("/post")
 @Transactional
+@CrossOrigin
+@Configuration
 public class PostController {
     @Autowired
     IUserService userService;
@@ -31,56 +42,141 @@ public class PostController {
     @Autowired
     IRelationService relationService;
 
-    public User getUser(HttpServletRequest request){
+    public User getUser(HttpServletRequest request) {
         //检查登陆状态
-        if( request.getSession().getAttribute("user")==null){
+        if (request.getSession().getAttribute("user") == null) {
             return null;
         }
         int userId = (int) request.getSession().getAttribute("user");
         return userService.getById(userId);
     }
 
-    public R<List<PostDTO>> getPosts(List<Integer> idList){
-        if(idList.isEmpty())
+    public R<List<PostV>> getPosts(List<Integer> idList) {
+
+        if (idList.isEmpty())
             return R.error();
-        List<Node> nodes=nodeService.list(new QueryWrapper<Node>().in("id",idList));
-        if(nodes==null)
+        List<Node> nodes = new ArrayList<>();
+        for(Integer i:idList){
+            Node node =nodeService.getById(i);
+            if(node!=null)
+                nodes.add(node);
+        }
+        if (nodes.isEmpty())
             return R.error();
         //获取 PostDTO
-        List<PostDTO> posts=new ArrayList<>();
-        for(Node node : nodes){
-            NodeDTO nodeDTO=DTOUtil.nodeToDTO(node);
+        List<PostV> postVs = new ArrayList<>();
+
+        for (Node node : nodes) {
+            NodeDTO nodeDTO = new NodeDTO(node);
             //获取子节点
             nodeDTO.setChiNodes(relationService.getChiNodes(node.getId()));
-            nodeDTO.setContent(nodeService.getContent(nodeDTO.getId()));
-            posts.add(new PostDTO(nodeDTO,postMapper.selectById(node.getId()).getAuthor()));
-            //获取PostDTO
+            nodeDTO.setContent(nodeService.getContent(node.getId()));
+            postVs.add(new PostV(nodeDTO));
 
         }
-        return R.success(posts);
+        return R.success(postVs);
     }
 
     /**
      * 1 发帖
-     * @param request request
-     * @param postDTO 帖子
+     *
+     * @param images         图片
+     * @param articleContent 帖子
      * @return 返回发帖结果
      */
     @PostMapping("/post")
-    public R<String> post(HttpServletRequest request, @RequestBody PostDTO postDTO) {
-        User user = getUser(request);
-        if(user==null)
-            return R.error();
-        if(postService.initPost(postDTO,user.getId()))
+
+    public R<String> post(MultipartFile[] images, @RequestParam List<String> articleContent, String title,Integer userId) {
+        System.out.println(articleContent);
+        if (articleContent == null || userId == null)
+            return R.error("参数为null");
+        ContentDTO contentDTO = getDto(articleContent,images,title);
+        if (postService.initPost(contentDTO, userId))
             return R.success();
         return R.error();
 
     }
+    @PostMapping("/comment")
+
+    public R<String> comment(MultipartFile[] images, @RequestParam List<String> articleContent, String title,Integer userId,Integer parId) {
+
+        if (articleContent == null || userId == null)
+            return R.error("参数为null");
+        ContentDTO contentDTO = getDto(articleContent,images,title);
+        if(nodeService.createNode(parId,"comment",contentDTO,userId)!=null)
+            return R.success();
+        return R.error();
+    }
+    /**
+     * 图片url替换文字空列表获得ContentDTO
+     * @param articleContent 文章内容列表
+     * @return ContentDTO
+     */
+    private ContentDTO getDto(List<String> articleContent,MultipartFile[] images,String title) {
+        //保存路径
+//        String uploadDirectory = "/usr/app/dist/img/";
+
+        String uploadDirectory = "D:/1_img/";
+        //图片url
+        String serverBaseUrl = "http://47.93.10.201/img/";
+
+        List<String> imageUrls = new ArrayList<>();
+        int imgNum = 0;
+        for (String s : articleContent) {
+            if (s.isEmpty())
+                imgNum++;
+        }
+        if(images==null){
+            if(imgNum!=0)
+                return null;
+        }else{
+            if (imgNum != images.length)
+                return null;
+            //保存图片并生成url列表
+            for (MultipartFile image : images) {
+                if (!image.isEmpty()) {
+                    try {
+                        // 保存图片到服务器的img文件夹
+                        String uid = UUID.randomUUID().toString();
+                        String fileName = uid + image.getOriginalFilename();
+                        String filePath = uploadDirectory + fileName;
+
+                        File dest = new File(filePath);
+                        image.transferTo(dest);
+
+                        // 生成可以访问的URL
+                        String imageUrl = serverBaseUrl + fileName;
+                        // 将URL添加到列表
+                        imageUrls.add(imageUrl);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        imageUrls.add("Error uploading image.");
+                    }
+                } else {
+                    imageUrls.add("Image is empty.");
+                }
+            }
+        }
+        List<Object> combinedData = new ArrayList<>();
+        int j=0;
+        for (String s : articleContent) {
+            if (s.isEmpty())
+                combinedData.add(imageUrls.get(j++));
+            else
+                combinedData.add(StringEscapeUtils.unescapeHtml4(s));
+        }
+        // 使用Gson将数据转换为JSON格式的字符串
+        Gson gson = new Gson();
+        String jsonData = gson.toJson(combinedData);
+        return new ContentDTO(title, jsonData);
+    }
+
 
     /**
      * 2 删除帖子
+     *
      * @param request request
-     * @param id 删除帖子的id
+     * @param id      删除帖子的id
      * @return 返回删除结果
      */
     @DeleteMapping("/delete")
@@ -90,10 +186,10 @@ public class PostController {
         Post post = postService.getById(id);
         if (post == null)
             return R.error();
-
+        Node node = nodeService.getById(id);
         //权限确认 （当前为发帖者拥有删帖权限）
         User user = getUser(request);
-        if (user == null || !user.getId().equals(post.getAuthor()))
+        if (user == null || !user.getId().equals(node.getAuthor()))
             return R.error("无删贴权限");
 
         //逻辑删除
@@ -104,52 +200,54 @@ public class PostController {
 
     /**
      * 3.1 关键字查找帖子
+     *
      * @param content 帖子内容关键字
      * @return 返回内容含关键字帖子集合
      */
     @GetMapping("/queryByContent")
-    public R<List<PostDTO>> queryByContent(String content) {
+    public R<List<PostV>> queryByContent(String content) {
         //获取帖子ID
-        List<Integer> idList= postMapper.queryPostIDByContent(content);
+        List<Integer> idList = postMapper.queryPostIDByContent(content);
         return getPosts(idList);
     }
 
     /**
      * 3.2 发布者id查询帖子
+     *
      * @param userId 发布者id
      * @return 返回查询结果
      */
     @GetMapping("/queryByAuthor")
-    public R<List<PostDTO>> queryByAuthor(long userId) {
+    public R<List<PostV>> queryByAuthor(int userId) {
 
         //查询发布者id等于userID的post
-        LambdaQueryWrapper<Post> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(Post::getAuthor, userId);
-        List<Post> posts = postService.list(queryWrapper);
-        List<Integer> idList=new ArrayList<>();
-        for (Post post:posts){
-            idList.add(post.getId());
-        }
+
+        List<Integer> posts = postMapper.queryPostByAuthor(userId);
+
         //查询为空
         if (posts.isEmpty())
-            return R.error();
+            return R.error("");
 
-        return getPosts(idList);
+        return getPosts(posts);
     }
 
     /**
      * 3.3 分页查询(按时间排序)
+     *
      * @param startNum 查询起始位置  0 和 1 都代表从第一条记录开始
      * @param pageSize 每页记录条数
      * @return 返回分页记录及信息
      */
     @GetMapping("/queryPageOrderByTime")
-    public R<List<PostDTO>> queryPageOrderByTime(Integer startNum, Integer pageSize) {
+    public R<List<PostV>> queryPageOrderByTime(Integer startNum, Integer pageSize) {
 
         //查询结果时间降序排序
-        List<Integer> idList=postMapper.queryPostByTime(startNum,pageSize);
-        if(idList==null)
+        List<Integer> idList = postMapper.queryPostByTime(startNum, pageSize);
+        System.out.println(idList);
+        if (idList == null)
             return R.error();
         return getPosts(idList);
     }
+
+
 }

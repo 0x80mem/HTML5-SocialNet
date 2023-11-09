@@ -16,9 +16,12 @@
     </van-popup>
     <van-popup
       :style="{ width: '100%', height: '100%' }"
+      closeable
+  @click-overlay="onClickOverlay"
+  @click-close-icon="onClickCloseIcon"
       v-model:show="showEditor"
       position="buttom">
-      <RichEditor :editorConfig="customEditorConfig"  />
+      <RichEditor :editorConfig="customEditorConfig" v-if="showEditor"  />
     </van-popup>
   </template>
 
@@ -36,7 +39,7 @@
   import UserView from '../views/UserView.vue';
   import RichEditor from '@/components/RichEditor.vue';
   import init from '@/scripts/EditorConfig.js';
-
+  import {showToast } from "vant";
   export default {
     components: {
       UserView,
@@ -49,10 +52,18 @@
       },
     },
     setup() {
+      const onClickOverlay = () => {
+      showToast('click-overlay');
+    };
+    const onClickCloseIcon = () => {
+      showToast('click-close-icon');
+    };
       const showUser = ref(false);
       const showEditor = ref(false);
       const customEditorConfig = ref(init)
       return {
+        onClickOverlay ,
+        onClickCloseIcon,
         showUser,
         showEditor,
         customEditorConfig,

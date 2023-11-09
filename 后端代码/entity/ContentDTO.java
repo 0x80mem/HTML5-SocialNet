@@ -9,6 +9,7 @@ public class ContentDTO {
 
     private String content;
 
+    private Boolean has_menu = false;
     public ContentDTO(String title, String content) {
         this.title = title;
         this.content = content;

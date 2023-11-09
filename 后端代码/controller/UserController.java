@@ -2,14 +2,17 @@ package com.html.nds.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.html.nds.common.GlobalException;
 import com.html.nds.common.R;
 import com.html.nds.common.DTOUtil;
 import com.html.nds.entity.*;
 import com.html.nds.mapper.RelationMapper;
+import com.html.nds.service.IContentService;
 import com.html.nds.service.INodeService;
 import com.html.nds.service.IRelationService;
 import com.html.nds.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,6 +23,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/user")
 @Transactional
+@CrossOrigin
+@Configuration
 public class UserController {
     @Autowired
     INodeService nodeService;
@@ -29,6 +34,8 @@ public class UserController {
     IRelationService relationService;
     @Autowired
     RelationMapper relationMapper;
+    @Autowired
+    IContentService contentService;
     /**
      * 1. 登陆
      *
@@ -91,28 +98,34 @@ public class UserController {
         }
         //增加用户
         Integer uid = nodeService.generateId();
-        if(!nodeService.save(new Node(uid, "user")))
+        if(!nodeService.save(new Node(uid,uid,"user")))
             return R.error();
 
         user.setId(uid);
         if (userService.save(user)) {
             //初始化
             Integer t = nodeService.generateId();
-            nodeService.save(new Node(t,"collect"));
+            nodeService.save(new Node(t,uid,"collect"));
             relationService.save(new Relation(uid,t));
 
             t = nodeService.generateId();
-            nodeService.save(new Node(t,"subscribe"));
+            nodeService.save(new Node(t,uid,"subscribe"));
             relationService.save(new Relation(uid,t));
 
             t = nodeService.generateId();
-            nodeService.save(new Node(t,"share"));
+            nodeService.save(new Node(t,uid,"fans"));
             relationService.save(new Relation(uid,t));
 
             t = nodeService.generateId();
-            nodeService.save(new Node(t,"like"));
+            nodeService.save(new Node(t,uid,"share"));
             relationService.save(new Relation(uid,t));
 
+            t = nodeService.generateId();
+            nodeService.save(new Node(t,uid,"like"));
+            relationService.save(new Relation(uid,t));
+
+            Content content = new Content(uid,user.getName(),"");
+            contentService.save(content);
             return R.success();
         }
 
@@ -162,7 +175,6 @@ public class UserController {
 
     @DeleteMapping("/cancel")
     public R<String> cancel(HttpServletRequest request) {
-
         //检查登陆状态
         User user = checkState(request);
         if (user == null)
@@ -194,9 +206,14 @@ public class UserController {
             return R.error("新旧名称相同");
 
         //更新数据
-        UpdateWrapper<User> updateWrapper = new UpdateWrapper<>();
-        updateWrapper.eq("id", user.getId()).set("name", name);
-        userService.update(updateWrapper);
+        try{
+            UpdateWrapper<User> updateWrapper = new UpdateWrapper<>();
+            updateWrapper.eq("id", user.getId()).set("name", name);
+            userService.update(updateWrapper);
+        }catch (Exception e){
+            throw new GlobalException(0,e.getMessage());
+        }
+
         return R.success("修改成功");
     }
 
@@ -249,9 +266,10 @@ public class UserController {
      */
     @GetMapping("/accurateQueryByName")
     public R<UserDTO> accurateQueryByName(String name) {
+
         User user = userService.getOne(new LambdaQueryWrapper<User>().eq(User::getName, name));
         if (user == null)
-            return R.error();
+            return R.error("不存在该用户");
         return R.success(DTOUtil.toUserDTO(user));
     }
 

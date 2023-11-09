@@ -25,13 +25,16 @@ public class Node implements Serializable {
     @TableId(value = "id", type = IdType.NONE)
     private Integer id;
 
+    private Integer author;
+
     private String type;
 
     private LocalDateTime time;
 
-    public Node(Integer id, String type) {
+    public Node(Integer id,Integer author, String type) {
+
         this.id = id;
-        System.out.println(type);
+        this.author=author;
         this.type = type;
         this.time = LocalDateTime.now();
     }

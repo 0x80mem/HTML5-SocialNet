@@ -23,7 +23,6 @@ export default {
     commentPostId: Number
   },
   setup(props) {
-    console.log("richeditor !")
     const content = ref("");
     const title = ref("");
     const apiKey = "zsbmp4e9znnl7a3rjlcj83ak105fquww17uttqptbt66e39e";
@@ -96,9 +95,17 @@ export default {
       images.forEach((image) => {
         formData.append('images', image);
       });
+      if(props.commentPostId){
+        console.log('comment')
+      }else{
+        console.log('post')
+      }
+      
+      console.log("ac is :", formData.get('articleContent'));
+      console.log('props.commentPostId',props.commentPostId)
       
       if(props.commentPostId){
-       
+        formData.append('parId',props.commentPostId)
         store.commit("comment",formData);
       }else{
         store.commit("post",formData);

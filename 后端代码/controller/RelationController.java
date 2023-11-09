@@ -1,23 +1,26 @@
 package com.html.nds.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.html.nds.common.R;
 
+import com.html.nds.entity.PostV;
+import com.html.nds.entity.Relation;
 import com.html.nds.mapper.RelationMapper;
 import com.html.nds.service.IContentService;
 import com.html.nds.service.INodeService;
 import com.html.nds.service.IPostService;
 import com.html.nds.service.IRelationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 
 @RestController
 @RequestMapping("/rel")
 @Transactional
+@CrossOrigin
+@Configuration
 public class RelationController {
     @Autowired
     IRelationService relationService;
@@ -31,59 +34,137 @@ public class RelationController {
     IContentService contentService;
 
     @PostMapping("/collect")
-    public R<String> collect(Integer postId,Integer collected,Integer collectNode, Integer userId) {
+    public R<PostV> collect(Integer postId, Integer userId) {
         //增加子节点
-        relationService.addChildNode(collectNode, postId);
-        relationService.addChildNode(collected, userId);
-        contentService.titleAsNumUpdate(collected, 1);
-        return R.success();
-    }
-
-    @PostMapping("/like")
-    public R<String> like(Integer postId,Integer liked,Integer collected,Integer likeNode, Integer collectNode, Integer userId) {
-        //增加子节点
-        relationService.addChildNode(likeNode,postId);
-        relationService.addChildNode(liked, userId);
-        contentService.titleAsNumUpdate(liked,1);
-        //已收藏
-        try{
-            return collect( postId, collected,collectNode,userId);
-        }catch (Exception e){
-            return R.success();
+        Integer postCollected = relationMapper.getChiNodeByType("collected", postId);
+        Integer userCollect = relationMapper.getChiNodeByType("collect", userId);
+        relationService.addChildNode(userCollect, postId);
+        try {
+            relationService.addChildNode(postCollected, userId);
+        } catch (Exception ignored) {
         }
-
-    }
-
-    @PostMapping("/share")
-    public R<String> share(Integer postId,Integer shared ,Integer shareNode, Integer userId) {
-        //增加子节点
-        relationService.addChildNode(shareNode,postId);
-        relationService.addChildNode(shared, userId);
-        contentService.titleAsNumUpdate(shared,1);
-        return R.success();
-    }
-
-    @DeleteMapping("/cancelLike")
-    public R<String> cancelLike(Integer postId,Integer liked,Integer likeNode) {
-        //删除子节点
-        relationService.removeChildNode(likeNode,postId);
-        contentService.titleAsNumUpdate( liked,-1);
-        return R.success();
+        contentService.titleAsNumUpdate(postCollected, 1);
+        return R.success(nodeService.getNode(postCollected));
     }
 
     @DeleteMapping("/cancelCollect")
-    public R<String> cancelCollect(Integer postId,Integer collectNode) {
+    public R<PostV> cancelCollect(Integer postId, Integer userId) {
         //删除子节点
-        relationService.removeChildNode(collectNode, postId);
+        Integer userCollect = relationMapper.getChiNodeByType("collect", userId);
+        Integer postCollected = relationMapper.getChiNodeByType("collected", postId);
+        relationService.removeChildNode(userCollect, postId);
+        relationService.removeChildNode(postCollected, userId);
+        contentService.titleAsNumUpdate(postCollected, -1);
+        return R.success(nodeService.getNode(postCollected));
+    }
+
+    @PostMapping("/like")
+    public R<PostV> like(Integer postId, Integer userId) {
+        //增加子节点
+        Integer userLike = relationMapper.getChiNodeByType("like", userId);
+        Integer postLiked = relationMapper.getChiNodeByType("liked", postId);
+
+        relationService.addChildNode(userLike, postId);
+        try {
+            relationService.addChildNode(postLiked, userId);
+        } catch (Exception ignored) {
+
+        }
+        contentService.titleAsNumUpdate(postLiked, 1);
+        R<PostV> r = R.success(nodeService.getNode(postLiked));
+        //已收藏
+        try {
+            collect(postId, userId);
+        } catch (Exception e) {
+            r.setMsg("已收藏");
+        }
+        return r;
+    }
+
+    @DeleteMapping("/cancelLike")
+    public R<PostV> cancelLike(Integer postId, Integer userId) {
+        //删除子节点
+        Integer postLiked = relationMapper.getChiNodeByType("liked", postId);
+        Integer userLike = relationMapper.getChiNodeByType("like", userId);
+
+        relationService.removeChildNode(userLike, postId);
+        relationService.removeChildNode(postLiked, userId);
+
+        contentService.titleAsNumUpdate(postLiked, -1);
+        return R.success(nodeService.getNode(postLiked));
+    }
+
+    @PostMapping("/share")
+    public R<String> share(Integer postId, Integer userId) {
+
+        Integer postShared = relationMapper.getChiNodeByType("shared", postId);
+        Integer userShare = relationMapper.getChiNodeByType("share", userId);
+
+        relationService.addChildNode(userShare, postId);
+        try {
+            relationService.addChildNode(postShared, userId);
+        } catch (Exception ignored) {
+        }
+        contentService.titleAsNumUpdate(postShared, 1);
         return R.success();
     }
 
     @DeleteMapping("/cancelShare")
-    public R<String> cancelShare(Integer postId,Integer shared,Integer shareNode) {
+    public R<String> cancelShare(Integer postId, Integer userId) {
+        Integer postShared = relationMapper.getChiNodeByType("shared", postId);
+        Integer userShare = relationMapper.getChiNodeByType("share", userId);
         //删除子节点
-        relationService.removeChildNode(shareNode, postId);
-        contentService.titleAsNumUpdate(shared,-1);
+        relationService.removeChildNode(userShare, postId);
+        relationService.removeChildNode(postShared, userId);
+        contentService.titleAsNumUpdate(postShared, -1);
         return R.success();
+    }
+
+
+    @PostMapping("/subscribe")
+    public R<String> subscribe(Integer userToSub, Integer user) {
+        //userToSub粉丝增加
+        Integer fans = relationMapper.getChiNodeByType("fans", userToSub);
+        relationService.addChildNode(fans, user);
+        //user关注增加
+        Integer subscribe = relationMapper.getChiNodeByType("subscribe", user);
+        relationService.addChildNode(subscribe, userToSub);
+
+        return R.success();
+    }
+
+    @DeleteMapping("/cancelSubscribe")
+    public R<String> cancelSubscribe(Integer user, Integer userToSub) {
+        //删除子节点
+        Integer fans = relationMapper.getChiNodeByType("fans", userToSub);
+        relationService.removeChildNode(fans, user);
+        //user关注增加
+        Integer subscribe = relationMapper.getChiNodeByType("subscribe", user);
+        relationService.removeChildNode(subscribe, userToSub);
+
+        return R.success();
+    }
+
+    @GetMapping("/beLiked")
+    public R<Boolean> beLiked(Integer postId, Integer userId) {
+        Integer userLike = relationMapper.getChiNodeByType("like",userId);
+        if (relationService.getOne(new LambdaQueryWrapper<Relation>().eq(Relation::getParent, userLike).eq(Relation::getChild, postId)) != null)
+            return R.success(true);
+        return R.success(false);
+    }
+    @GetMapping("/beCollected")
+    public R<Boolean> beCollected(Integer postId, Integer userId) {
+        Integer userCollect = relationMapper.getChiNodeByType("collect",userId);
+        if (relationService.getOne(new LambdaQueryWrapper<Relation>().eq(Relation::getParent, userCollect).eq(Relation::getChild, postId)) != null)
+            return R.success(true);
+        return R.success(false);
+    }
+
+    @GetMapping("/hasRelation")
+    public R<Boolean> hasRelation(Integer parId, Integer chiId) {
+        if (relationService.getOne(new LambdaQueryWrapper<Relation>().eq(Relation::getParent, parId).eq(Relation::getChild, chiId)) != null)
+            return R.success(true);
+        return R.success(false);
     }
 
 }

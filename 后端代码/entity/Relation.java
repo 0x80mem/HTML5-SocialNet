@@ -1,5 +1,6 @@
 package com.html.nds.entity;
 
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
 import java.io.Serializable;
@@ -17,9 +18,8 @@ import lombok.experimental.Accessors;
 public class Relation implements Serializable {
 
     private static final long serialVersionUID = 1L;
-
+    @TableId
     private Integer parent;
-
     private Integer child;
 
     private LocalDateTime time;

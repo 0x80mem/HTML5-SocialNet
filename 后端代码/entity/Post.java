@@ -21,8 +21,6 @@ public class Post implements Serializable {
     @TableId(value = "id", type = IdType.NONE)
     private Integer id;
 
-    private Integer author;
-
     @TableLogic
     private Integer state;
 
