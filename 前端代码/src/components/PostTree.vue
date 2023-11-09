@@ -30,7 +30,6 @@ props: {
   },
 },
 setup(props) {
-  console.log("PostTree 3.")
   const getFunc = async (id) => {
     const post = await api.getPost(id);
     return post;
@@ -45,7 +44,7 @@ setup(props) {
 
   onMounted(async () => {
     Post.value = await getFunc(props.id); // 等待异步操作完成后赋值给 Post
-    visit.value = Recursive(Post.value, props.showLevel, getFunc, deleteFunc);
+    visit.value = await Recursive(Post.value, props.showLevel, getFunc, deleteFunc);
   });
 
   return {

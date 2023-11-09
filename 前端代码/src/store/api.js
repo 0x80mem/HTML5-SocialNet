@@ -20,7 +20,7 @@ const apiFm = axios.create({
   },
 });
 function convertPostVToPost(postV) {
-
+	
 	// 创建一个新的 Post 对象，以 PostV 的属性填充它
 	const post = new Post(
 		postV.id,
@@ -113,4 +113,23 @@ export async function collect(postId) {
 	const dataHandler = (data) => convertPostVToPost(data.data)
 	return handleRequest(apiFunction, dataHandler);
 }
-
+export async function uCollect(postId) {
+	const apiFunction = () =>apiFm.delete('/rel/cancelCollect', {
+		data: {
+			postId: postId,
+			userId: store.state.userInfo.id
+		}
+	});
+	const dataHandler = (data) => convertPostVToPost(data.data);
+	return handleRequest(apiFunction, dataHandler);
+}
+export async function isCollectedPost(postId) {
+	const apiFunction = () =>apiFm.get('/rel/beCollected', {
+		params: {
+			postId: postId,
+			userId: store.state.userInfo.id
+		}
+	});
+	const dataHandler = (data) => data.data
+	return handleRequest(apiFunction, dataHandler);
+}

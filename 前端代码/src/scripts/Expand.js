@@ -3,6 +3,7 @@ import TypeConfig from "./TypeConfig"
 
 async function Expand(post, visit, showLevel, getFunc, deleteFunc) {
 
+    
     if (post.showLevel == showLevel)
         return post;
     post.showLevel = showLevel;
@@ -17,7 +18,6 @@ async function Expand(post, visit, showLevel, getFunc, deleteFunc) {
         return post;
 
     let type = TypeConfig[post.type];
-    console.log("type is",type)
     let chiShow = type.chi_policy[showLevel];
 
     if (typeof post.chiPost[0] == 'number') {

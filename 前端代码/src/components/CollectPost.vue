@@ -2,7 +2,7 @@
     <div @click="onClick(post)" >
     <div >
       <div >
-        <div v-if="post.type=='fans'">  <van-cell title="粉丝" is-link value="粉丝" @click="onClick(post)" size="large" :border="true" /></div>
+        <div v-if="post.type=='collect'">  <van-cell title="收藏" is-link value="收藏" @click="onClick(post)" size="large" :border="true" /></div>
          {{ post.content.content }}
       </div>
     </div>

@@ -2,7 +2,7 @@
       <div @click="onClick(post)" >
       <div >
         <div >
-            <div v-if="post.type=='subscribe'&& (parNode.id==1||parNode.id==2)">  <van-cell title="关注" custom-class="vant-cell-bg" is-link value="关注" @click="onClick(post)" size="large" :border="true" /></div>
+            <div v-if="post.type=='subscribe'">  <van-cell title="关注" custom-class="vant-cell-bg" is-link value="关注" @click="onClick(post)" size="large" :border="true" /></div>
            {{ post.content.content }}
         </div>
       </div>

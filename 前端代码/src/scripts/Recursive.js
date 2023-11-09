@@ -10,12 +10,15 @@ async function RecursiveNode(post, showLevel, getFunc) {
 
     post.showLevel = showLevel;
     let type = TypeConfig[post.type];
-    console.log('RecursiveNode post:',post)
+
     let parList = [...post.parPost];
     let parShow = type.par_policy[showLevel];
     if (parShow > ShowLevel['hide']) {
         post.parPost = [];
         for (const id of parList) {
+
+            const getPost = await getFunc(id, parShow)
+
             post.parPost.push(await getFunc(id, parShow));
             await RecursiveNode(post.parPost[post.parPost.length - 1], parShow, getFunc);
         }

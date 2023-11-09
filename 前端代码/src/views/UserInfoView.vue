@@ -26,7 +26,6 @@ export default{
         PostTree,
     },
     setup(props) {
-        console.log("UserInfoView 2.")
         const UserName = ref(''); // 使用 ref 来保存用户名
         const UserId = ref('');
         onMounted(async () => {

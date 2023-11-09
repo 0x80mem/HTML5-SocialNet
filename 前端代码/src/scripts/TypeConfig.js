@@ -23,6 +23,16 @@ const TypeConfig = {
         [ShowLevel['zip'],    ShowLevel['hide']],
         [ShowLevel['full'],   ShowLevel['full']]
     ]),
+    "share": new Types([
+        [ShowLevel['author'], ShowLevel['hide']],
+        [ShowLevel['zip'], ShowLevel['hide']],
+        [ShowLevel['full'], ShowLevel['title']],
+    ],
+    [
+        [ShowLevel['author'], ShowLevel['hide']],
+        [ShowLevel['zip'],    ShowLevel['hide']],
+        [ShowLevel['full'],   ShowLevel['full']]
+    ]),
     //版本, post, forward的父节点
     //version只有hide, title, full
     //version的父节点应为空
@@ -89,7 +99,7 @@ const TypeConfig = {
         [ShowLevel['full'],   ShowLevel['title']]
     ]),
     //收藏
-    "collection": new Types([
+    "collect": new Types([
         [ShowLevel['zip'],    ShowLevel['title']],
         [ShowLevel['full'],   ShowLevel['title']]
     ],

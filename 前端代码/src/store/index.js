@@ -138,14 +138,28 @@ export default createStore({
 		 */
 		
 		post(state, postPayload) {
-			postPayload.append('userId',833460694)
-			apiFm.post('/post/post', postPayload
-			).then(res => {
-				console.log(res);
-			}).catch(err => {
-				console.log(err);
-			})
+			if(state.userInfo.isLogin){
+				postPayload.append('userId',state.userInfo.id)
+				apiFm.post('/post/post', postPayload
+				).then(res => {
+					console.log(res);
+				}).catch(err => {
+					console.log(err);
+				})
+			}
+			
 
+		},
+		comment(state,postPayload){
+			if(state.userInfo.isLogin){
+				postPayload.append('userId',state.userInfo.id)
+				apiFm.post('/post/comment', postPayload
+				).then(res => {
+					console.log(res);
+				}).catch(err => {
+					console.log(err);
+			})
+			}
 		},
 		//关键词查找帖子
 		queryByContent(state, content) {
