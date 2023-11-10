@@ -1,8 +1,9 @@
 import axios from 'axios'
 import { createStore } from 'vuex'
 import * as apiFunc from './api'
-// const baseURL ="http://localhost:8088";
-const baseURL= 'http://47.93.10.201/api'
+import { SUCESS } from './statusCodes'
+// const baseURL ="http://localhost:8088"
+const baseURL ="http://47.93.10.201/api"
 const timeout = 10000
 const axiosConfig = {
   baseURL,
@@ -45,14 +46,21 @@ export default createStore({
 			})
 		},
 		//登出
-		logout() {
+		logout(state) {
 			api.get("/user/logout").then(res => {
-
-				
+				console.log(res)
+				state.userInfo.isLogin=false;
+				state.userInfo.id=0;
+				state.userInfo.username='';
 			}).catch(res => {
 				console.log(res);
 			})
 		},
+		setUserInfo(state, userInfo) {
+      state.userInfo.id = userInfo.userId;
+      state.userInfo.isLogin = true;
+      state.userInfo.username = userInfo.userName;
+    },
 		//注册
 		register(state, [username, password]) {
 			api.post('/user/register', { name: username, password: password }).then(res => {
@@ -392,9 +400,27 @@ export default createStore({
 
 	},
 	actions: {
+		// 从后端获取用户信息的 action
+    async fetchUserInfo({ commit }) {
+      try {
+        const response = await api.get('/user/getLoginState');
+        const userInfo = response.data.data; // 根据你的 API 响应结构进行调整
+				console.log(response)
+				
+				if(response.data.code==SUCESS){
+					commit('setUserInfo', userInfo);
+				}
+					
+      } catch (error) {
+        console.error('获取用户信息时发生错误：', error);
+      }
+    },
+		async initStore({ dispatch }) {
+      await dispatch('fetchUserInfo');
+    },
 	},
 	modules: {
-	}
+	},
 })
 
 

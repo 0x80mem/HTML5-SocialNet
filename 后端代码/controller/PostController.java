@@ -91,6 +91,7 @@ public class PostController {
         if (articleContent == null || userId == null)
             return R.error("参数为null");
         ContentDTO contentDTO = getDto(articleContent,images,title);
+        System.out.println("contentDTO"+contentDTO);
         if (postService.initPost(contentDTO, userId))
             return R.success();
         return R.error();
@@ -119,7 +120,7 @@ public class PostController {
         String uploadDirectory = "D:/1_img/";
         //图片url
         String serverBaseUrl = "http://47.93.10.201/img/";
-
+//        String serverBaseUrl = "D:/1_img/";
         List<String> imageUrls = new ArrayList<>();
         int imgNum = 0;
         for (String s : articleContent) {
@@ -157,7 +158,19 @@ public class PostController {
                 }
             }
         }
-        List<Object> combinedData = new ArrayList<>();
+        StringBuilder stringBuilder=new StringBuilder();
+
+        int j=0;
+        for (String s : articleContent) {
+            if (s.isEmpty())
+                stringBuilder.append(imageUrls.get(j++));
+            else
+                stringBuilder.append(StringEscapeUtils.unescapeHtml4(s));
+        }
+
+        System.out.println(stringBuilder);
+        return new ContentDTO(title, stringBuilder.toString());
+       /* List<Object> combinedData = new ArrayList<>();
         int j=0;
         for (String s : articleContent) {
             if (s.isEmpty())
@@ -165,10 +178,12 @@ public class PostController {
             else
                 combinedData.add(StringEscapeUtils.unescapeHtml4(s));
         }
+
+        System.out.println(combinedData);
         // 使用Gson将数据转换为JSON格式的字符串
         Gson gson = new Gson();
         String jsonData = gson.toJson(combinedData);
-        return new ContentDTO(title, jsonData);
+        return new ContentDTO(title, jsonData);*/
     }
 
 
