@@ -1,14 +1,12 @@
 package com.html.nds.service.impl;
 
-import com.html.nds.common.DTOUtil;
-import com.html.nds.common.R;
+
 import com.html.nds.entity.*;
 import com.html.nds.mapper.PostMapper;
 import com.html.nds.service.IContentService;
 import com.html.nds.service.INodeService;
 import com.html.nds.service.IPostService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.html.nds.service.IRelationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +27,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements IP
         if (contentDTO == null)
            return false;
         //创建node
-        Integer nodeId=nodeService.createNode(null,"post",author);
+        Integer nodeId=nodeService.createNode(author,"post",author,true);
         //post存入信息，保存
         Post post = new Post();
         post.setId(nodeId);
@@ -41,11 +39,11 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements IP
         contentService.save(content);
 
         //初始化 liked shared collected
-        Integer liked = nodeService.createNode(nodeId,"liked",new ContentDTO("0",""),author);
+        nodeService.createNode(nodeId,"liked",new ContentDTO("0",""),author,true);
 
-        Integer shared = nodeService.createNode(nodeId,"shared",new ContentDTO("0",""),author);
+        nodeService.createNode(nodeId,"shared",new ContentDTO("0",""),author,true);
 
-        Integer collected = nodeService.createNode(nodeId,"collected",new ContentDTO("0",""),author);
+        nodeService.createNode(nodeId,"collected",new ContentDTO("0",""),author,true);
 
         return true;
     }

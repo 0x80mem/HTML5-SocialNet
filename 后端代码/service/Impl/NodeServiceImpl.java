@@ -8,12 +8,10 @@ import com.html.nds.mapper.PostMapper;
 import com.html.nds.service.IContentService;
 import com.html.nds.service.INodeService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.html.nds.service.IPostService;
 import com.html.nds.service.IRelationService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 
@@ -38,12 +36,14 @@ public class NodeServiceImpl extends ServiceImpl<NodeMapper, Node> implements IN
     }
 
     @Override
-    public Integer createNode(Integer parNode, String type, Integer author) {
+    public Integer createNode(Integer parNode, String type, Integer author,boolean backEdge) {
         Integer uid = generateId();
         Node node = new Node(uid, author, type);
         if (save(node)) {
             if (parNode != null) {
                 relationService.addChildNode(parNode, uid);
+                if(backEdge)
+                    relationService.addParNode(parNode,uid);
             }
             return uid;
         }
@@ -51,8 +51,8 @@ public class NodeServiceImpl extends ServiceImpl<NodeMapper, Node> implements IN
     }
 
     @Override
-    public Integer createNode(Integer parNode, String type, ContentDTO contentDTO,Integer author) {
-        Integer nodeId = createNode(parNode, type,author);
+    public Integer createNode(Integer parNode, String type, ContentDTO contentDTO,Integer author,boolean backEdge) {
+        Integer nodeId = createNode(parNode, type,author,backEdge);
         Content content = DTOUtil.DTOToContent(contentDTO);
         content.setId(nodeId);
         contentService.save(content);

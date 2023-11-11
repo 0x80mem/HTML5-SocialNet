@@ -21,9 +21,8 @@ public class NodeController {
     @Autowired
     IContentService contentService;
     @PostMapping("/createNode")
-
     public R<String> createNode(@RequestBody PostV postV) {
-        Integer id = nodeService.createNode(postV.getParPost().get(0), postV.getType(),postV.getAuthor());
+        Integer id = nodeService.createNode(postV.getParPost().get(0), postV.getType(),postV.getAuthor(),true);
         if(id==null)
             return R.error();
         if (postV.getContent() != null){
