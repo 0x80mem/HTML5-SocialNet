@@ -307,6 +307,7 @@ export default {
           comment1.value++;
         }
       }
+      
     };
     getcommentnumber(props.post);
 
@@ -365,31 +366,12 @@ export default {
       getcommentnumber(post)
       show.value = true;
     };
-    const clickLike = async (post) => {
-      let postId = post.id; // 从组件的 props 或 data 中获取需要的数据
-
-      if (clikelike1.value == 0) {
-        const newLikePost = await api.like(postId);
-        if (newLikePost != null) {
-          clikelike1.value++;
-          likeColor.value = "red";
-          like1.value = newLikePost.content.title;
-        }
-        return;
-      }
-      if (clikelike1.value == 1) {
-        const newLikePost = await api.uLike(postId);
-        console.log(newLikePost);
-        likeColor.value = "blue";
-        clikelike1.value--;
-        like1.value = newLikePost.content.title;
-        return;
-      }
-    };
     const clickStar = async (post) => {
+      
       let postId = post.id; // 从组件的 props 或 data 中获取需要的数据
-
+      console.log('ssss')
       if (clikestar1.value == 0) {
+        console.log("true")
         const newCollectPost = await api.collect(postId);
         if (newCollectPost != null) {
           clikestar1.value++;
@@ -399,6 +381,7 @@ export default {
         return;
       }
       if (clikestar1.value == 1) {
+        console.log("false")
         const newCollectPost = await api.uCollect(postId);
         starColor.value = "blue";
         clikestar1.value--;
@@ -406,6 +389,38 @@ export default {
         return;
       }
     };
+
+    const clickLike = async (post) => {
+      let postId = post.id;
+
+  // Check if the post is not collected, then collect it
+      
+
+      // Update the like status
+      if (clikelike1.value === 0) {
+        if (clikestar1.value === 0) {
+        const newCollectPost = await api.collect(postId);
+        if (newCollectPost != null) {
+          clikestar1.value++;
+          starColor.value = "red";
+          star.value = newCollectPost.content.title;
+        }
+      }
+        const newLikePost = await api.like(postId);
+        if (newLikePost != null) {
+          clikelike1.value++;
+          likeColor.value = "red";
+          like1.value = newLikePost.content.title;
+        }
+      } else if (clikelike1.value === 1) {
+        const newLikePost = await api.uLike(postId);
+        likeColor.value = "blue";
+        clikelike1.value--;
+        like1.value = newLikePost.content.title;
+      }
+      
+    };
+    
 
     return {
       show,

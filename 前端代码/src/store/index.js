@@ -1,22 +1,7 @@
-import axios from 'axios'
 import { createStore } from 'vuex'
 import * as apiFunc from './api'
 import { SUCESS } from './statusCodes'
-// const baseURL ="http://localhost:8088"
-const baseURL ="http://47.93.10.201/api"
-const timeout = 10000
-const axiosConfig = {
-  baseURL,
-  timeout,
-};
-
-const api = axios.create(axiosConfig);
-const apiFm = axios.create({
-  ...axiosConfig,
-  headers: {
-    'Content-Type': 'application/x-www-form-urlencoded',
-  },
-});
+import { api,apiFm } from './axiosConfig'
 export default createStore({
 	state: {
 		userInfo: {
@@ -119,6 +104,10 @@ export default createStore({
 				console.log(res);
 			})
 		},
+		updatePostList(state, newList) {
+      // 更新 postList
+      state.postList = newList;
+    },
 		//获取推荐post
 		getPostList(state) {
 			api.get('/post/queryPageOrderByTime', {

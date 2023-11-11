@@ -12,7 +12,7 @@
         </div>
       </div>
     </div>
-
+    <div class="separator"></div>
 
 </template>
 <style>
@@ -50,6 +50,13 @@ margin-top: 10px;
 
 .content-wrapper {
 margin-bottom: 20px;
+}
+.separator {
+  margin-top: 10px;
+  border-top: 1px solid #ccc;
+  width: 96%;
+  margin-left: 2%;
+  margin-bottom: 20px;
 }
 </style>
 
