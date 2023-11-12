@@ -6462,6 +6462,11 @@ vue-eslint-parser@^8.0.1:
     lodash "^4.17.21"
     semver "^7.3.5"
 
+vue-hand-mobile@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.npmmirror.com/vue-hand-mobile/-/vue-hand-mobile-1.0.3.tgz"
+  integrity sha512-kwmElk1xpodyESG/IPxVbkzy47TAqojkfZEu2IWCNM7yFYBGNhtw1y3m6Te3Lqm2yaXncFxhEOQqGwX9cOunqA==
+
 vue-hot-reload-api@^2.3.0:
   version "2.3.4"
   resolved "https://registry.npmmirror.com/vue-hot-reload-api/-/vue-hot-reload-api-2.3.4.tgz"
@@ -6524,6 +6529,11 @@ vue@*, "vue@^2 || ^3.2.13", vue@^3.0.0, vue@^3.2.0, vue@^3.2.13, "vue@2 || 3", v
     "@vue/runtime-dom" "3.3.4"
     "@vue/server-renderer" "3.3.4"
     "@vue/shared" "3.3.4"
+
+vue3-hand-mobile@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.npmmirror.com/vue3-hand-mobile/-/vue3-hand-mobile-1.0.3.tgz"
+  integrity sha512-aEQFu4KixK87dS7X/9bCkl5gBEVhT4BSz4UOfWGz4JDtKAcIliuntNHZbEW0KSNeTyTkb8Sbn5cfliW0eCPuTg==
 
 vuex@^4.1.0:
   version "4.1.0"

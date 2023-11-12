@@ -369,9 +369,7 @@ export default {
     const clickStar = async (post) => {
       
       let postId = post.id; // 从组件的 props 或 data 中获取需要的数据
-      console.log('ssss')
       if (clikestar1.value == 0) {
-        console.log("true")
         const newCollectPost = await api.collect(postId);
         if (newCollectPost != null) {
           clikestar1.value++;
@@ -381,7 +379,6 @@ export default {
         return;
       }
       if (clikestar1.value == 1) {
-        console.log("false")
         const newCollectPost = await api.uCollect(postId);
         starColor.value = "blue";
         clikestar1.value--;

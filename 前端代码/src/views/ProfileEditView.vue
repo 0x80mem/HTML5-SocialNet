@@ -20,12 +20,21 @@
     </div>
     <button @click="saveChanges">保存</button>
   </div>
+  <tool-basket>
+        <home-tool></home-tool>
+    </tool-basket>
 </template>
 
 <script>
 import { changeAvatar,changeInfo,getUserInfo } from '@/store/api';
 import { useRoute } from "vue-router";
+import ToolBasket from '@/components/ToolBasket.vue';
+import HomeTool from '@/components/HomeTool.vue';
 export default {
+  components: {
+        ToolBasket,
+        HomeTool,
+    },
   data() {
     return {
       user: {
