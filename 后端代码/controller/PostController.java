@@ -1,8 +1,5 @@
 package com.html.nds.controller;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.html.nds.common.DTOUtil;
 import com.html.nds.common.R;
 import com.html.nds.entity.*;
 import com.html.nds.mapper.PostMapper;
@@ -17,11 +14,12 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
-
-import com.google.gson.Gson;
 
 @RestController
 @RequestMapping("/post")
@@ -104,7 +102,7 @@ public class PostController {
         if (articleContent == null || userId == null)
             return R.error("参数为null");
         ContentDTO contentDTO = getDto(articleContent,images,title);
-        if(nodeService.createNode(parId,"comment",contentDTO,userId)!=null)
+        if(nodeService.createNode(parId,"comment",contentDTO,userId,true)!=null)
             return R.success();
         return R.error();
     }
@@ -115,9 +113,9 @@ public class PostController {
      */
     private ContentDTO getDto(List<String> articleContent,MultipartFile[] images,String title) {
         //保存路径
-//        String uploadDirectory = "/usr/app/dist/img/";
+        String uploadDirectory = "/usr/app/dist/img/";
 
-        String uploadDirectory = "D:/1_img/";
+//        String uploadDirectory = "D:/1_img/";
         //图片url
         String serverBaseUrl = "http://47.93.10.201/img/";
 //        String serverBaseUrl = "D:/1_img/";
@@ -139,7 +137,7 @@ public class PostController {
                     try {
                         // 保存图片到服务器的img文件夹
                         String uid = UUID.randomUUID().toString();
-                        String fileName = uid + image.getOriginalFilename();
+                        String fileName = image.getOriginalFilename().replaceFirst(".*\\.", uid + ".");
                         String filePath = uploadDirectory + fileName;
 
                         File dest = new File(filePath);

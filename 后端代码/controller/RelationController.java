@@ -15,6 +15,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+
 
 @RestController
 @RequestMapping("/rel")
@@ -156,6 +158,13 @@ public class RelationController {
     public R<Boolean> beCollected(Integer postId, Integer userId) {
         Integer userCollect = relationMapper.getChiNodeByType("collect",userId);
         if (relationService.getOne(new LambdaQueryWrapper<Relation>().eq(Relation::getParent, userCollect).eq(Relation::getChild, postId)) != null)
+            return R.success(true);
+        return R.success(false);
+    }
+    @GetMapping("/beSubscribed")
+    public R<Boolean> beSubscribed(Integer hostId, Integer userId) {
+        Integer userSubscribe = relationMapper.getChiNodeByType("subscribe",hostId);
+        if (relationService.getOne(new LambdaQueryWrapper<Relation>().eq(Relation::getParent, userSubscribe).eq(Relation::getChild,userId)) != null)
             return R.success(true);
         return R.success(false);
     }

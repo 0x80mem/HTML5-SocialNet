@@ -1,6 +1,6 @@
 package com.html.nds.mapper;
 
-import com.html.nds.entity.User;
+import com.html.nds.entity.Parent;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -9,10 +9,10 @@ import org.apache.ibatis.annotations.Mapper;
  *  Mapper 接口
  * </p>
  *
- * @author 
- * @since 2023-11-11
- */
+
+ * @since 2023-11-10
+ * */
 @Mapper
-public interface UserMapper extends BaseMapper<User> {
+public interface ParentMapper extends BaseMapper<Parent> {
 
 }

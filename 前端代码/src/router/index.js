@@ -11,7 +11,12 @@ const routes = [
     path: '/',
     name: 'decode',
     component: DecodeView
-    // component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue')
+    //component: () => import(/* webpackChunkName: "about" */ '../views/testView/ProfileEditView.vue')
+  },
+  {
+    path: '/infoEdit',
+    name: 'infoEdit',
+    component: () => import(/* webpackChunkName: "about" */ '../views/ProfileEditView.vue')
   },
   // {
   //   path: '/register',

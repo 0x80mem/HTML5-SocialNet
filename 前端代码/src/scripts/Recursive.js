@@ -4,6 +4,8 @@ import TypeConfig from "./TypeConfig";
 let visit = new Set();
 
 async function RecursiveNode(post, showLevel, getFunc) {
+    if(post==null)
+        return
     if (visit.has(post.id)) 
         return;
     visit.add(post.id);
@@ -16,9 +18,6 @@ async function RecursiveNode(post, showLevel, getFunc) {
     if (parShow > ShowLevel['hide']) {
         post.parPost = [];
         for (const id of parList) {
-
-            const getPost = await getFunc(id, parShow)
-
             post.parPost.push(await getFunc(id, parShow));
             await RecursiveNode(post.parPost[post.parPost.length - 1], parShow, getFunc);
         }

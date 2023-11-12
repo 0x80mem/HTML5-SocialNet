@@ -109,6 +109,7 @@ export default {
         store.commit("comment",formData);
       }else{
         store.commit("post",formData);
+        store.commit("getPostList");
       }
       
      

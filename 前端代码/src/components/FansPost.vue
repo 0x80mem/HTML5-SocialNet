@@ -1,12 +1,13 @@
 <template>
     <div @click="onClick(post)" >
-    <div >
-      <div >
+    <div>
+      <div>
         <div v-if="post.type=='fans'">  <van-cell title="粉丝" is-link value="粉丝" @click="onClick(post)" size="large" :border="true" /></div>
          {{ post.content.content }}
       </div>
     </div>
-      <div v-for="sub in post.chiPost" :key="sub.id" :sub="sub">
+
+    <div v-for="sub in post.chiPost" :key="sub.id" :sub="sub">
         <div v-if="key != parNode.id" >
           <RecNode :post="sub" :parNode="post" :visit="visit" :getFunc="getFunc" :deleteFunc="deleteFunc"></RecNode>
         </div>

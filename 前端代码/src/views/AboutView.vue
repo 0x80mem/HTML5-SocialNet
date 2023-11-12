@@ -1,4 +1,9 @@
 <template>
+
+<div>
+    <UserProfile :user="currentUser" />
+</div>
+
   <div class="di" style="display: flex;padding: 50px 50px;">
     
 
@@ -93,6 +98,10 @@
     <button @click="comment">
       comment
     </button>
+    <button @click="getAup">
+      getAup
+    </button>
+    
   </div>
 </template>
 
@@ -100,16 +109,27 @@
 <script>
 import store from '../store';
 import test_case from "../store/test_case1";
-import axios from 'axios'
+import UserProfile from'./testView/UserProfile.vue'
 import * as api from '../store/api';
 import * as deb from '../store/debug_interface'
 import Post from '@/scripts/Post';
 import Content from '@/scripts/Content';
 export default {
-
+  components: {
+    UserProfile,
+    },
   store,
+  data() {
+    return {
+      currentUser: {
+        username: 'John Doe',
+        bio: 'Web Developer',
+        avatar: 'http://47.93.10.201/img/5.png',
+      },
+    };
+  },
   setup() {
-
+   
     const login = () => {
       store.commit("login", ['zzr', '123456'])
     };
@@ -243,8 +263,13 @@ export default {
       let comment = new Post(0,'comment',833460694,new Content('ShacooKL',false,'这是第二条条评论'),[1026073299],[])
       const re = await api.comment(comment);
       console.log(re)
-
     }
+    const getAup= async() => {
+      
+      const re = await api.getPostListByAuthor(1075404869)
+      console.log(re)
+    }
+    
     return {
       login,
       like,
@@ -270,7 +295,8 @@ export default {
       updateContent,
       getContent,
       queryPostById,
-      comment
+      comment,
+      getAup
     };
   },
 };

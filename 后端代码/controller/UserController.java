@@ -11,14 +11,17 @@ import com.html.nds.service.IContentService;
 import com.html.nds.service.INodeService;
 import com.html.nds.service.IRelationService;
 import com.html.nds.service.IUserService;
+import com.html.nds.service.impl.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/user")
@@ -36,6 +39,8 @@ public class UserController {
     RelationMapper relationMapper;
     @Autowired
     IContentService contentService;
+    @Autowired
+    Avatar avatar;
     /**
      * 1. 登陆
      *
@@ -69,12 +74,12 @@ public class UserController {
         request.getSession().setAttribute("user", uid);
 
         //生成UserDTO
-        UserDTO userDTO=DTOUtil.toUserDTO(tuser);
+        UserDTO userDTO = DTOUtil.toUserDTO(tuser);
         //生成NodeDTO
         NodeDTO nodeDTO = DTOUtil.nodeToDTO(nodeService.getById(uid));
         nodeDTO.setChiNodes(relationService.getChiNodes(uid));
-        R<NodeDTO> r=R.success(nodeDTO);
-        r.add("userInfo",userDTO);
+        R<NodeDTO> r = R.success(nodeDTO);
+        r.add("userInfo", userDTO);
         return r;
     }
 
@@ -98,33 +103,33 @@ public class UserController {
         }
         //增加用户
         Integer uid = nodeService.generateId();
-        if(!nodeService.save(new Node(uid,uid,"user")))
+        if (!nodeService.save(new Node(uid, uid, "user")))
             return R.error();
 
         user.setId(uid);
         if (userService.save(user)) {
             //初始化
             Integer t = nodeService.generateId();
-            nodeService.save(new Node(t,uid,"collect"));
-            relationService.save(new Relation(uid,t));
+            nodeService.save(new Node(t, uid, "collect"));
+            relationService.save(new Relation(uid, t));
 
             t = nodeService.generateId();
-            nodeService.save(new Node(t,uid,"subscribe"));
-            relationService.save(new Relation(uid,t));
+            nodeService.save(new Node(t, uid, "subscribe"));
+            relationService.save(new Relation(uid, t));
 
             t = nodeService.generateId();
-            nodeService.save(new Node(t,uid,"fans"));
-            relationService.save(new Relation(uid,t));
+            nodeService.save(new Node(t, uid, "fans"));
+            relationService.save(new Relation(uid, t));
 
             t = nodeService.generateId();
-            nodeService.save(new Node(t,uid,"share"));
-            relationService.save(new Relation(uid,t));
+            nodeService.save(new Node(t, uid, "share"));
+            relationService.save(new Relation(uid, t));
 
             t = nodeService.generateId();
-            nodeService.save(new Node(t,uid,"like"));
-            relationService.save(new Relation(uid,t));
+            nodeService.save(new Node(t, uid, "like"));
+            relationService.save(new Relation(uid, t));
 
-            Content content = new Content(uid,user.getName(),"");
+            Content content = new Content(uid, user.getName(), "");
             contentService.save(content);
             return R.success();
         }
@@ -181,7 +186,7 @@ public class UserController {
             return R.error("登陆状态异常");
 
         //删除用户
-        if ( userService.update(new UpdateWrapper<User>().eq("id",user.getId()).set("state",1)))
+        if (userService.update(new UpdateWrapper<User>().eq("id", user.getId()).set("state", 1)))
             return R.success("注销成功");
         return R.success("注销失败");
     }
@@ -206,12 +211,12 @@ public class UserController {
             return R.error("新旧名称相同");
 
         //更新数据
-        try{
+        try {
             UpdateWrapper<User> updateWrapper = new UpdateWrapper<>();
             updateWrapper.eq("id", user.getId()).set("name", name);
             userService.update(updateWrapper);
-        }catch (Exception e){
-            throw new GlobalException(0,e.getMessage());
+        } catch (Exception e) {
+            throw new GlobalException(0, e.getMessage());
         }
 
         return R.success("修改成功");
@@ -287,5 +292,44 @@ public class UserController {
         return R.success(DTOUtil.toUserDTOs(users));
     }
 
+    @GetMapping("/getLoginState")
+    public R<UserDTO> getLoginState(HttpServletRequest request) {
+        User user = checkState(request);
+        if (user == null)
+            return R.error();
+        return R.success(new UserDTO(user.getId(), user.getName()));
+    }
+    @GetMapping("/getUserInfo")
+    public R<UserInfoV> getUserInfo(Integer id) {
+        User user = userService.getById(id);
+        if (user == null)
+            return R.error();
+        Content content = contentService.getById(user.getId());
+        return R.success(new UserInfoV(user.getId(),content.getContent(),content.getTitle(),user.getAvatar()));
+    }
+    @PostMapping("/changeAvatar")
+    public R<String> changeAvatar(HttpServletRequest request, MultipartFile image) {
+        User user = checkState(request);
+        if (user == null)
+            return R.error();
+       String url = user.getAvatar();
+       String newUrl=avatar.savaAvatar(image,user.getId());
+       if(Objects.equals(url, newUrl))
+           return R.error();
+       return R.success(newUrl);
+    }
+    @PostMapping("/changeInfo")
+    public R<String> changeInfo(HttpServletRequest request,@RequestBody UserInfoV userInfoV) {
+        User user = checkState(request);
+        if (user == null)
+            return R.error();
+       user.setName(userInfoV.getUsername());
+       userService.update(user,new LambdaQueryWrapper<User>().eq(User::getId,user.getId()));
+       Content content = contentService.getById(user.getId());
+       content.setTitle(userInfoV.getUsername());
+       content.setContent(userInfoV.getBio());
+       contentService.update(content,new LambdaQueryWrapper<Content>().eq(Content::getId,user.getId()));
+       return R.success();
+    }
 
 }
