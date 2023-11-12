@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div :class="container_state">
     <div class="basket-content" v-if="showContent">
       <slot v-if="showContent"></slot>
     </div>
@@ -11,7 +11,7 @@
       @click="showContent = !showContent;"
     ></van-button>
   </div>
-  <div class="alter">
+  <div :class="alter_state">
     <van-button
       class="basket-tools"
       type="primary"
@@ -85,19 +85,17 @@ export default {
       });
     });
 
-    const alter_state = ref(false);
+    const container_state = ref('container')
+    const alter_state = ref('alter');
     const swapElements = () => {
-      const container = document.querySelector(".container");
-      const alter = document.querySelector(".alter");
-      console.log(container.className, alter.className);
-      const containerClass = container.className;
-      container.className = alter.className;
-      alter.className = containerClass;
-      console.log(container.className, alter.className);
-      alter_state.value = !alter_state.value;
-    };
+      let value = container_state.value
+      container_state.value = alter_state.value
+      alter_state.value = value
+    }
 
     return {
+      container_state,
+      alter_state,
       showContent,
       swapElements,
     };
